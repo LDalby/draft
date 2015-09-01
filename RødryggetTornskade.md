@@ -16,7 +16,8 @@ indikatorer for rrts, formentlig via en øget tilgængelighed af insekter (disku
 Brambilla et al 2007 finder buskdække og kultiveret areal som værende positivt korrelerede med rrts tilstedeværelse på landskabs-
 skala, mens højere værdier af buskdække og læhegn (længde) er betydende for placeringen af territorier.
 Rrts tilstedeværelse positivt korreleret med det afgræssede areal og negativt korreleret med dyrket og ikke-afgræsset
- græsareal (Vanhinsbergh & Evans 2002). Vanhinsbergh & Evans (2002) finder at hvis det afgræssede areal holdes konstant
+ græsareal (Vanhinsbergh & Evans 2002). Vanhinsbergh & Evans (2002) finder at hvis det afgræssede areal holdes konstant stiger 
+ abundancen af rrts optil omkring 10 - 15% buskdække.
 
 #### Potentielle indikatorer:
  - Areal med dække af tornebærende buske
