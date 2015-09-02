@@ -7,7 +7,6 @@ yngler rødrygget tornskade i rydninger og nyplantninger, mens arten benytter i 
 ##### Skov
 Græssede enge og vådområder (Grell 1998). Udbredelsen af Gråkrage og husskade, sammenholdt med større muligheder for at kunne skjule reden i krat/unge træer, for de pågældende arter er sandsynlige faktorer for større yngesuccess i skove (Söderström and Karlsson, 2011). I skovrydninger og naturlige lysninger er enebær vigtig for tilstædeværelsen af rødrygget tornskade (Lislevand 2012). Andelen af nåletræer i retention-cuts er negativt korreleret med abundansen af rødrygget tornskade ().
 
-
 ### Redested
 ##### Åbent land
 Reden placeres ofte i buskvegetation af tornebærende arter, så som slåen og brombær (Svendsen et al 2015 og refs deri).
@@ -41,33 +40,37 @@ Olsson (1995) finder at rødrygget tornskade udfører en betydelig del af jagten
 
 #### Potentielle indikatorer (forsøgt prioriteret):
 ##### Åbent land:
- 1. Areal med dække af tornebærende buske (Svendsen et al 2015, Titeux, m. fl)
+ 1. Arealandel med dække af tornebærende buske (Svendsen et al 2015, Titeux, m. fl)
+ 1. Antal udsigtsposter per/ha (buske, læhegn, hegn - 1-4 m; Titeux et al 2007)
  1. Effektivt fourageringsareal (Se Titeux et al 2007)
  1. Areal med dække af buske
- 1. Antal udsigtsposter (buske, læhegn, hegn - 1-4 m; Titeux et al 2007)
  1. Samlet længde af læhegn (Se Brambilla et al 2007)
  1. Afgræsset areal (Se Brambilla et al 2007)
 
 ##### Skov:
-1. størrelsen af græs-/urte areal (blomsterig vegetation <50cm)
+1. Arealet af græs-/urte vegetation (blomsterig vegetation <50cm)
 1. andel tornebuske
 1. andel høje træer
 1. Jordfugtighed
 
 ##### Todo:
 Flere nævner fugtige områder eller områder uden dræning som vigtige - hvad kunne være en god parameter?
-
-#### Fra Oskar
-# Levesteder
-## Levested Skov
-
-### Rede
-~140 cm over jorden, primært i Picea abies, Fagus sylvatica og Crataegus monogyna. Men fundet i 15 forskellige plante arter, og mellem 15 og 300 cm over jorden (Pedersen et al 2011).
-
-### Jagtområder
-Olsson (1995) finder at rødrygget tornskade udfører en betydelig del af jagten i luften (45%) eller højt græs (>25cm; 32%), med en stor andel af blomstrende planter. Men også lavt græs (<25cm; 17%) benyttes, i modsætning til buske og træer (6%) eller dyrkede marker (<1%). Fourageringsstederne afspejler føden, som hovedsageligt består af store biller på 1.5-2 cm (Pterosticus ssp., Geotrupes stercorarius, Aphodius fossor) og humlebier (Bombus ssp.), men også myrer og andre vepse (Vespidae) udgør en del af fødegrundlaget.
+Måske kan afstand til høje strukturer benyttes som prædator proxy.
 
 
-## Levesteds udvikling
-Tilbagegang på Sjælland (Note: Primært skov?), fremgang i Jylland (Note: Primært lysåben?) (Grell 1998). Første obs af rødrygget tornskade i skov (clear-cuts) er i 1960'erne(Svensson et al 1999 IN Söderström and Karlsson, 2011). I dag udgør det 69% af alle ynglefund (Ottvall et al 2009 IN Söderström and Karlsson, 2011).
+#### Levesteds udvikling
+Tilbagegang på Sjælland (Note: Primært skov?), fremgang i Jylland (Note: Primært lysåben?) (Grell 1998). Første obs af rødrygget tornskade i skov (clear-cuts) er i 1960'erne (Svensson et al 1999 IN Söderström and Karlsson, 2011). I dag udgør det 69% af alle ynglefund (Ottvall et al 2009 IN Söderström and Karlsson, 2011).
+
+###References
+Brambilla, M., et al. (2007). "Between land abandonment and agricultural intensification: habitat preferences of Red-backed Shrikes Lanius collurio in low-intensity farming conditions." Bird Study 54: 160-167.
+
+Grell 1998. Fuglenes Danmark
+
+Olsson, V. (1995). "The Red-backed Shrike Lanius collurio in southeastern Sweden: Habitat and territory." Ornis Svecica 5(1): 31-41.
+	
+Svendsen, J. K., et al. (2015). "Habitat and nest site preferences of Red-backed Shrike (Lanius collurio) in western Denmark." Ornis Fennica 92: 63-75.
+
+Titeux, N., et al. (2007). "Fitness-related parameters improve presence-only distribution modelling for conservation practice: The case of the red-backed shrike." Biological Conservation 138(1-2): 207-223.
+
+Vanhinsbergh, D. and A. Evans (2002). "Habitat associations of the Red-backed Shrike (Lanius collurio) in Carinthia, Austria." Journal Fur Ornithologie 143(4): 405-415.
 
