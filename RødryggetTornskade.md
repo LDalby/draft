@@ -54,7 +54,7 @@ Olsson (1995) finder at rødrygget tornskade udfører en betydelig del af jagten
 ##### Skov:
 1. Arealet af græs-/urte vegetation (blomsterig vegetation <50cm)
 1. andel tornebuske
-1. andel høje træer
+1. andel høje træer (som en negativ påvirkning)
 1. Jordfugtighed
 
 ##### Todo:
