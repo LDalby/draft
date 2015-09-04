@@ -22,21 +22,25 @@ Titeux et al (2007) definerer redested sådan:
 
 ### Fødesøgningsområde
 ##### Åbent land
-Områder med lav vegetation der gør rrts foretrukne jagtstrategi mulig (drop from perch). Tilstedeværelse af store insekter
-som biller, humlebier og græshopper er betydende for tilstedeværelsen af rrts (). Fugtige områder lader til at være positive
-indikatorer for rrts, formentlig via en øget tilgængelighed af insekter (diskussion i Svendsen et al 2015).
-Brambilla et al 2007 finder buskdække og kultiveret areal som værende positivt korrelerede med rrts tilstedeværelse på landskabs-
+Områder med lav vegetation der gør rødrygget tornskade foretrukne jagtstrategi mulig (drop from perch). Tilstedeværelse af store insekter
+som biller, humlebier og græshopper er betydende for tilstedeværelsen af rødrygget tornskade. Fugtige områder lader til at være positive
+indikatorer for rødrygget tornskade, formentlig via en øget tilgængelighed af insekter (diskussion i Svendsen et al 2015).
+Brambilla et al 2007 finder buskdække og kultiveret areal som værende positivt korrelerede med rødrygget tornskade tilstedeværelse på landskabs-
 skala, mens højere værdier af buskdække og læhegn (længde) er betydende for placeringen af territorier.
-Rrts tilstedeværelse positivt korreleret med det afgræssede areal og negativt korreleret med dyrket og ikke-afgræsset
+rødrygget tornskade tilstedeværelse positivt korreleret med det afgræssede areal og negativt korreleret med dyrket og ikke-afgræsset
 græsareal (Vanhinsbergh & Evans 2002). Vanhinsbergh & Evans (2002) finder at hvis det afgræssede areal holdes konstant stiger 
-abundancen af rrts optil omkring 10 - 15% buskdække.
-Afgræsset areal selekteres af rrts sandsynligvis som følge af høj fødetilgængelighed (leddyr over 10 mm) samt vegetation af
+abundancen af rødrygget tornskade optil omkring 10 - 15% buskdække.
+Afgræsset areal selekteres af rødrygget tornskade sandsynligvis som følge af høj fødetilgængelighed (leddyr over 10 mm) samt vegetation af
 en passende højde (Golawski & Golawska 2008 Habp ref).
 Det effektive forageringsområde kan opgøres som arealet i en buffer (20m) omkring de egnede udsigtsposter, der er mindre end 40m
 fra et egnet redested (Titeux et al 2007)
 
 ##### Skov
 Olsson (1995) finder at rødrygget tornskade udfører en betydelig del af jagten i luften (45%) eller højt græs (>25cm; 32%), med en stor andel af blomstrende planter. Men også lavt græs (<25cm; 17%) benyttes, i modsætning til buske og træer (6%) eller dyrkede marker (<1%). Fourageringsstederne afspejler føden, som hovedsageligt består af store biller på 1.5-2 cm (Pterosticus ssp., Geotrupes stercorarius, Aphodius fossor) og humlebier (Bombus ssp.), men også myrer og andre vepse (Vespidae) udgør en del af fødegrundlaget.
+
+##### Fra _Kriterier fro gunstig bevaringsstatus_
+- Minimum 50% af yngleområdet skal have maks vegetationshøjde på 30 cm i perioden 1.maj - 1. juli
+- Andel bar jord minimum 5%
 
 #### Potentielle indikatorer (forsøgt prioriteret):
 ##### Åbent land:
@@ -63,6 +67,8 @@ Tilbagegang på Sjælland (Note: Primært skov?), fremgang i Jylland (Note: Prim
 
 ###References
 Brambilla, M., et al. (2007). "Between land abandonment and agricultural intensification: habitat preferences of Red-backed Shrikes Lanius collurio in low-intensity farming conditions." Bird Study 54: 160-167.
+
+Golawski, A. and S. Golawska (2008). "Habitat preference in territories of the Red-Backed Shrike Lanius collurio and their food richness in an extensive agriculture landscape." Acta Zoologica Academiae Scientiarum Hungaricae 54(1): 89-97.
 
 Grell 1998. Fuglenes Danmark
 
