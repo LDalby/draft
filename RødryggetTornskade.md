@@ -1,5 +1,7 @@
 # Levestedsvurdering for  Rødrygget tornskade
 
+TEST
+
 ## Levested
 ##### Åbent land
 Åbne områder med spredt buskvegetation, så som heder, overdrev og gamle græsningsenge. I skovområder 
@@ -80,3 +82,5 @@ Titeux, N., et al. (2007). "Fitness-related parameters improve presence-only dis
 
 Vanhinsbergh, D. and A. Evans (2002). "Habitat associations of the Red-backed Shrike (Lanius collurio) in Carinthia, Austria." Journal Fur Ornithologie 143(4): 405-415.
 
+# Fra projekt beskrivelsen (mail fra JRF 4. nov)
+Rødrygget Tornskade. Arten forekommer i en række åbne varierede insektrige habitater med buskadser, enkeltstående træer, levende hegn etc. som eksempelvis overdrev, græsningsenge og ryddede arealer i skov. Den trives ofte særlig godt i et varieret landskab, hvor det gerne må være varmt, læfyldt og solrigt. Reden anbringes oftest lavt i tæt krat i fx en tornet busk og nogle gange højere og mere iøjnefaldende i et træ. Der forventes at indgå overvejelse om indikatorer, der omfatter krav til ynglested samt fødesøgning i form af insekter i yngletiden (afhængig af vurderingen af individernes aktionsradius). Der inddrages konkret viden og eksempler fra ynglelokaliteter om artens levestedskrav fra fx Grib Skov og andre steder i begrundelsen til identifikation af foreslåede relevante indikatorer (og i forslag til vægte og score). 
