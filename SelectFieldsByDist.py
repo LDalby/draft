@@ -50,3 +50,31 @@ except:
 
 	arcpy.AddMessage(arcpy.GetMessages(1))
 	print arcpy.GetMessages(1)
+
+
+
+# Tjek det shapefile.strip trick ud:
+# Name: CopyFeatures_Example2.py
+# Description: Convert all shapefiles in a folder to geodatabase feature classes
+# Requirements: os module
+ 
+# Import system modules
+import arcpy
+from arcpy import env
+import os
+ 
+# Set environment settings
+env.workspace = "C:/data"
+ 
+# Set local variables
+outWorkspace = "c:/output/output.gdb"
+ 
+# Use ListFeatureClasses to generate a list of shapefiles in the
+#  workspace shown above.
+fcList = arcpy.ListFeatureClasses()
+ 
+# Execute CopyFeatures for each input shapefile
+for shapefile in fcList:
+    # Determine the new output feature class path and name
+    outFeatureClass = os.path.join(outWorkspace, shapefile.strip(".shp"))
+    arcpy.CopyFeatures_management(shapefile, outFeatureClass)
