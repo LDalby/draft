@@ -1,6 +1,6 @@
 # Read ascii of ALMaSS landscape 
 # Remap values to goose numbers from sim
-
+print('foo')
 # Import system modules
 from arcpy import env
 import arcpy, traceback, sys, time, gc, os
@@ -13,27 +13,34 @@ inRingingSites = "O:/ST_Starlings/GIS/RingingSites.txt"
 # Set spatial reference:
 prj = arcpy.SpatialReference("WGS 1984 UTM Zone 32N")
 
+# Convert fields to layer file
+arcpy.MakeFeatureLayer_management(inFields, "inFields_lyr")
+
+locations = ['KostraedeBanker', 'RavnstrupSoe', 'TingvadBorum', 'AuKaloe', 'HjortkaerEndrup', 'HHGlumsoe']
+pathtofields = "O:/ST_Starlings/GIS/Fields/"
+
+
 try:
 	# Import the ringing sites
 	# Set the local variables
 	x_coords = "X"
 	y_coords = "Y"
 	out_Layer = "ringingsites"
-	saved_Layer = "C:/Users/lada/Desktop/ringingsites.lyr"
+	# saved_Layer = "C:/Users/lada/Desktop/ringingsites.lyr"
+	saved_shp = "C:/Users/lada/Desktop/ringingsites.shp"
+	selected_ringsite = "C:/Users/lada/Desktop/kaloe.shp"
 	# Make the XY event layer...
 	arcpy.MakeXYEventLayer_management(inRingingSites, x_coords, y_coords, out_Layer, prj)
-	# Save to a layer file (may not be needed any longer...)
-	arcpy.SaveToLayerFile_management(out_Layer, saved_Layer)
 	# Copy layer to generate OIDs:
-	arcpy.CopyFeatures_management(IN, OUT)
+	arcpy.CopyFeatures_management(out_Layer, saved_shp)
+	# Convert shape to feature:
+	arcpy.MakeFeatureLayer_management(saved_shp, "RingSite")
 	# Select one ringing site:
-	arcpy.SelectLayerByAttribute_management(out_Layer, "NEW_SELECTION",' "Location" = "AuKaloe" ')
-	# Write the selected features to a new featureclass
-	# arcpy.CopyFeatures_management("lyr", "chihuahua_10000plus")
-	# Select by distance
-	arcpy.SelectLayerByLocation_management(in_layer = 'inFields', overlap_type = 'WITHIN_A_DISTANCE', search_distance = 2000, select_features = out_Layer, selection_type = 'NEW_SELECTION')
+	arcpy.SelectLayerByAttribute_management("RingSite", "NEW_SELECTION", "\"Location\" = 'AuKaloe'")
+	# # Select by distance
+	arcpy.SelectLayerByLocation_management("inFields_lyr",'WITHIN_A_DISTANCE', "RingSite", "2000 Meters", 'NEW_SELECTION', "NOT_INVERT")
 	# arcpy.DefineProjection_management(outRaster, prj)
-	arcpy.CopyFeatures_management('inFields', 'AuKaloeFields')
+	arcpy.CopyFeatures_management('inFields_lyr', 'C:/Users/lada/Desktop/AuKaloeFields.shp')
 
 
 except:
