@@ -1,6 +1,4 @@
-# Read ascii of ALMaSS landscape 
-# Remap values to goose numbers from sim
-
+# Subset polygon layer with x,y from txt file
 # Import system modules
 from arcpy import env
 import arcpy, traceback, sys, time, gc, os
@@ -12,19 +10,19 @@ inFields = "O:/ST_LandskabsGenerering/gis/dkgis.gdb/MarkerDK2013"
 inRingingSites = "O:/ST_Starlings/GIS/RingingSites.txt"
 # Set spatial reference:
 prj = arcpy.SpatialReference("WGS 1984 UTM Zone 32N")
-
-# Convert fields to layer file
-arcpy.MakeFeatureLayer_management(inFields, "inFields_lyr")
-
+# The list of location names
 locations = ['KostraedeBanker', 'RavnstrupSoe', 'TingvadBorum', 'AuKaloe', 'HjortkaerEndrup', 'HHGlumsoe']
 pathtofields = "O:/ST_Starlings/GIS/Fields/"
 # Import the ringing sites
 x_coords = "X"
 y_coords = "Y"
 out_Layer = "ringingsites"
-saved_shp = "C:/Users/lada/Desktop/ringingsites.shp"
+saved_shp = "O:/ST_Starlings/GIS/ringingsites.shp"
 if arcpy.Exists(saved_shp):
         arcpy.Delete_management(saved_shp)
+
+# Convert fields to layer file
+arcpy.MakeFeatureLayer_management(inFields, "inFields_lyr")
 # Make the XY event layer...
 arcpy.MakeXYEventLayer_management(inRingingSites, x_coords, y_coords, out_Layer, prj)
 # Copy layer to generate OIDs:
