@@ -11,7 +11,7 @@ ScipenDefault = getOption('scipen')  # In case it should be turned back again.
 options(scipen = 99)  # To avoid scientific notation in the resulting file
 
 muni = as.data.table(read_excel('C:/Users/lada/Desktop/NatKvalIndex2.xlsx'))
-munisID = unique(munis[,KommuneID])
+munisID = unique(muni[,KommuneID])
 # Fix multibioscore error in data:
 muni = unique(muni[, Areal:=sum(Areal), by = c('KommuneID', 'Type', 'Bioscore', 'Navn')])
 # Calc the proportions
@@ -28,19 +28,32 @@ typen[,xmax:=cumsum(TypeAndel), by = 'KommuneID']
 typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 # Merge them back together:
 final = merge(muni, typen, by = c('KommuneID', 'Type'))
-final[, AvgScore:=weighted.mean(Bioscore, Areal), by = c('KommuneID', 'Type')]
+# final[, AvgScore:=weighted.mean(Bioscore, Areal), by = c('KommuneID', 'Type')]
+final[, AvgScore:=log10(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
+final[,list(max(AvgScore))]
 # Set up the color scheme:
-cols = brewer.pal(8, 'Dark2')
-cols = c("Skov" = cols[1], "Mark" = cols[2], "HedeOverdrev" = cols[5], "EngMose" = cols[4],
-	"Sø" = cols[3], "ByerGrønt" = cols[6], "ByerHuseVeje" = cols[7], "Andet" = cols[8] )
+dark2 = brewer.pal(8, 'Dark2')
+set2 = brewer.pal(8, 'Set2')
+set3 = brewer.pal(9, 'Set3')
+set1 = brewer.pal(9, 'Set1')
+past1 = brewer.pal(9, 'Pastel1')
+past2 = brewer.pal(8, 'Pastel2')
+cols = c("Skov" = dark2[5],
+ 		"Mark" = set3[6],
+  		"HedeOverdrev" = past2[4],
+   		"EngMose" = past1[2],
+		"Sø" = set1[2],
+	 	"ByerGrønt" = set2[5],
+	  	"ByerHuseVeje" = set1[9],
+	   	"Andet" = dark2[8])
 # Plot:
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex4_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex11_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	p = ggplot(final[KommuneID == munisID[i],], aes(ymin = 0, ymax = AvgScore, xmin = xmin, xmax = xmax,
 		fill = factor(Type))) + ylab('Gns. bioscore') + xlab('Areal andel') + ggtitle(komnavn)
 	p = p + geom_rect(colour = I("grey")) + theme_bw() + 
-	scale_y_continuous(breaks = c(0,1,3,8,13), limits = c(0,20), labels = c('Ingen', 'Ringe', 'Lokal', 'Regional', 'National')) + 
+	scale_y_continuous(breaks = log10(c(0,1,3,8,13)+1), limits = c(0,1.3), labels = c('Ingen', 'Ringe', 'Lokal', 'Regional', 'National')) + 
 	theme(panel.grid.minor = element_blank()) + scale_fill_manual(values = cols, guide = guide_legend(title = "Type"))
 	print(p)
 }
