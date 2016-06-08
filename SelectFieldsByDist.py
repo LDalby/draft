@@ -51,7 +51,7 @@ for index in range(len(locations)):
 	# Select one ringing site:
 	arcpy.SelectLayerByAttribute_management("RingSite", "NEW_SELECTION", where_clause)
 	# Select by distance
-	arcpy.SelectLayerByLocation_management("inFields_lyr",'WITHIN_A_DISTANCE', "RingSite", "2000 Meters", 'NEW_SELECTION', "NOT_INVERT")
+	arcpy.SelectLayerByLocation_management("inFields_lyr",'WITHIN_A_DISTANCE', "RingSite", "1500 Meters", 'NEW_SELECTION', "NOT_INVERT")
 	# Make the file name
 	fieldlocfile = locations[index] + ".shp"
 	fieldloc = os.path.join(pathtofields, fieldlocfile)
