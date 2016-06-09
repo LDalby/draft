@@ -28,9 +28,17 @@ typen[,xmax:=cumsum(TypeAndel), by = 'KommuneID']
 typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 # Merge them back together:
 final = merge(muni, typen, by = c('KommuneID', 'Type'))
-# final[, AvgScore:=weighted.mean(Bioscore, Areal), by = c('KommuneID', 'Type')]
-final[, AvgScore:=log10(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
-final[,list(max(AvgScore))]
+final[,AvgScore:=log(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
+andet = copy(final)
+andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, Areal), by = c('KommuneID')][Type != 'Andet',.(KommuneID, AvgScore)])
+# Put the new Andet scores back into final:
+final[Type == 'Andet', AvgScore:=andet[,AvgScore]]
+final[AvgScore > log(13), AvgScore:=log(13), by = c('KommuneID', 'Type')]
+final[TypeCode == 6, AvgScore:=0.77]
+final[Type == 'ByerHuseVeje', AvgScore:=0.26]
+
+# Log giver negative værdier
+
 # Set up the color scheme:
 dark2 = brewer.pal(8, 'Dark2')
 set2 = brewer.pal(8, 'Set2')
@@ -45,16 +53,19 @@ cols = c("Skov" = dark2[5],
 		"Sø" = set1[2],
 	 	"ByerGrønt" = set2[5],
 	  	"ByerHuseVeje" = set1[9],
-	   	"Andet" = dark2[8])
+	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex11_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex14_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	p = ggplot(final[KommuneID == munisID[i],], aes(ymin = 0, ymax = AvgScore, xmin = xmin, xmax = xmax,
-		fill = factor(Type))) + ylab('Gns. bioscore') + xlab('Areal andel') + ggtitle(komnavn)
-	p = p + geom_rect(colour = I("grey")) + theme_bw() + 
-	scale_y_continuous(breaks = log10(c(0,1,3,8,13)+1), limits = c(0,1.3), labels = c('Ingen', 'Ringe', 'Lokal', 'Regional', 'National')) + 
-	theme(panel.grid.minor = element_blank()) + scale_fill_manual(values = cols, guide = guide_legend(title = "Type"))
+		fill = factor(Type))) + ylab('Naturværdi') + xlab('Arealandel (%)') + ggtitle(komnavn)
+	p = p + geom_rect() + theme_bw() + 
+	scale_y_continuous(breaks = seq(0, log(13), length = 6)[1:5], limits = c(0,log(13)), labels = c('Ingen', 'Lille', 'Lokal', 'Regional', 'National')) + 
+	theme(panel.grid.minor = element_blank()) + scale_fill_manual(values = cols, guide = guide_legend(title = "Type")) + 
+	scale_x_continuous(breaks = seq(0, 100, length.out = 11))
 	print(p)
 }
 dev.off()
+
+colour = I("grey")
