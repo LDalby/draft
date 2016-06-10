@@ -29,13 +29,14 @@ typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 # Merge them back together:
 final = merge(muni, typen, by = c('KommuneID', 'Type'))
 final[,AvgScore:=log(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
+final[TypeCode == 6, AvgScore:=0.77]
+final[Type == 'ByerHuseVeje', AvgScore:=0.26]
 andet = copy(final)
-andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, Areal), by = c('KommuneID')][Type != 'Andet',.(KommuneID, AvgScore)])
+andet = unique(andet[, .(KommuneID, Type, AvgScore, TypeAndel.x)])
+andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, TypeAndel.x), by = c('KommuneID')][Type != 'Andet',.(KommuneID, AvgScore)])
 # Put the new Andet scores back into final:
 final[Type == 'Andet', AvgScore:=andet[,AvgScore]]
 final[AvgScore > log(13), AvgScore:=log(13), by = c('KommuneID', 'Type')]
-final[TypeCode == 6, AvgScore:=0.77]
-final[Type == 'ByerHuseVeje', AvgScore:=0.26]
 
 # Log giver negative værdier
 
@@ -55,7 +56,7 @@ cols = c("Skov" = dark2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex14_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex16_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	p = ggplot(final[KommuneID == munisID[i],], aes(ymin = 0, ymax = AvgScore, xmin = xmin, xmax = xmax,
