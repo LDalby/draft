@@ -62,4 +62,10 @@ for jndex in range(len(inLayers)):
     fieldloc = os.path.join(pathtofields, layerlocfile)
     print fieldloc
     arcpy.CopyFeatures_management(inLayers[jndex] + "_lyr", fieldloc)
-
+# Merge the shapefiles into one:
+for index in range(len(locations)):
+  finallocfile = locations[index] + "Final.shp"
+  finalloc = os.path.join(pathtofields, finallocfile)
+  outpath = os.path.join(pathtofields, locations[index])
+  arcpy.Merge_management([outpath+inLayers[0]+".shp",outpath+inLayers[1]+".shp",
+  outpath+inLayers[2]+".shp",outpath+inLayers[3]+".shp",outpath+inLayers[4]+".shp"], finalloc)
