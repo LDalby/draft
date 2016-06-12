@@ -13,7 +13,7 @@ inRingingSites = "O:/ST_Starlings/GIS/RingingSites.txt"
 prj = arcpy.SpatialReference("WGS 1984 UTM Zone 32N")
 # The list of location names
 locations = ['KostraedeBanker', 'RavnstrupSoe', 'TingvadBorum', 'AuKaloe', 'HjortkaerEndrup', 'HHGlumsoe']
-pathtofields = "O:/ST_Starlings/GIS/Fields/"
+pathtofields = "O:/ST_Starlings/GIS/Fields/"  # output fields
 # Import the ringing sites
 x_coords = "X"
 y_coords = "Y"
@@ -47,17 +47,19 @@ for jndex in range(len(inLayers)):
   # Convert fields to layer file
   targetLayer = os.path.join(inGDB, inLayers[jndex])
   arcpy.MakeFeatureLayer_management(targetLayer, inLayers[jndex] + "_lyr")
-
+  print targetLayer
   for index in range(len(locations)):
-  	fieldname = "Location"
-  	fieldvalue = locations[index]
-  	where_clause = buildWhereClause("RingSite", fieldname, fieldvalue)
-  	# Select one ringing site:
-  	arcpy.SelectLayerByAttribute_management("RingSite", "NEW_SELECTION", where_clause)
-  	# Select by distance
-  	arcpy.SelectLayerByLocation_management(inLayers[jndex] + "_lyr",'WITHIN_A_DISTANCE', "RingSite", "1500 Meters", 'NEW_SELECTION', "NOT_INVERT")
-  	# Make the file name
-  	layerlocfile = locations[index] + inLayers[jndex] + ".shp"
-  	fieldloc = os.path.join(pathtofields, layerlocfile)
-  	arcpy.CopyFeatures_management(inLayers[jndex] + "_lyr", fieldloc)
+    fieldname = "Location"
+    fieldvalue = locations[index]
+    print fieldvalue
+    where_clause = buildWhereClause("RingSite", fieldname, fieldvalue)
+    # Select one ringing site:
+    arcpy.SelectLayerByAttribute_management("RingSite", "NEW_SELECTION", where_clause)
+    # Select by distance
+    arcpy.SelectLayerByLocation_management(inLayers[jndex] + "_lyr",'WITHIN_A_DISTANCE', "RingSite", "1500 Meters", 'NEW_SELECTION', "NOT_INVERT")
+    # Make the file name
+    layerlocfile = locations[index] + inLayers[jndex] + ".shp"
+    fieldloc = os.path.join(pathtofields, layerlocfile)
+    print fieldloc
+    arcpy.CopyFeatures_management(inLayers[jndex] + "_lyr", fieldloc)
 
