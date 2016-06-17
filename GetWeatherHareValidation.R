@@ -11,7 +11,7 @@
 landscapes = dir('o:/ST_LandskabsGenerering/harelav/HareValidation/')
 script = "c:/Users/lada/Git/draft/ExportFeatureClassGDB.py"
 pathtogdb = 'O:/ST_LandskabsGenerering/harelav/HareValidation'
-inFeatures = "polymask"
+inFeatures = "polymask"  # Name of the shapefile in the gdb
 for (i in seq_along(landscapes)) {
 	landscape = landscapes[i]
 	featureClass = file.path(pathtogdb, landscape, 'project.gdb')
