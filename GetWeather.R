@@ -1,4 +1,4 @@
-# Generate weather files for hare validation landscapes
+# Generate weather files for ALMaSS landscapes
 # Author: Lars Dalby
 # Date: 16/6/2016
 # The python call is modified from this gis SE answer:
@@ -36,3 +36,21 @@ for (i in seq_along(landscapes)) {
 	outfile = file.path(pathtogdb, landscape, paste0(landscape, '.pre'))
 	WritePolyref(Table = weather, PathToFile = outfile, Headers = FALSE, Type = 'Farm') 
 }
+
+# The Vejlerne landscape:
+script = "c:/Users/lada/Git/draft/ExportFeatureClassGDB.py"
+inFeatures = "vejlerne"  # Name of the shapefile in the gdb
+featureClass = 'O:/ST_Lada/Div/FraC/Landskabsgenerering/landskaber/Vejlerne/project.gdb'
+outLocation = 'O:/ST_Lada/Div/FraC/Landskabsgenerering/landskaber/Vejlerne'
+outFeatureClass = "vejlerne.shp"
+system2('python', args = c(shQuote(script),shQuote(featureClass),shQuote(inFeatures),shQuote(outLocation),shQuote(outFeatureClass))) 
+
+spobject = file.path(outLocation, outFeatureClass)
+spobject = readOGR(spobject, 'vejlerne')
+spobject = spTransform(spobject, CRS('+proj=longlat +datum=WGS84'))
+spobject = spPolygons(spobject, crs = projection(spobject))
+weather = ExtractEOBS(eobs, spobject, metric = 'mean')
+setnames(weather, old = 'MeanTemperature', new = 'Temperature')
+setcolorder(weather, c('Year', 'Month', 'Day', 'Temperature', 'Wind', 'Precipitation'))
+outfile = 'C:/MSV/ALMaSS_inputs/Weather/Vejlerne.pre'
+WritePolyref(Table = weather, PathToFile = outfile, Headers = FALSE, Type = 'Farm') 
