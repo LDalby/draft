@@ -7,6 +7,9 @@
 # Currently written as two loops - could be done in one, but to keep the python
 # process somewhat isolated, I've split it up.
 
+library(raster)
+library(data.table)
+library(rgdal)
 # Get the names of all the landscapes:
 landscapes = dir('o:/ST_LandskabsGenerering/harelav/HareValidation/')
 script = "c:/Users/lada/Git/draft/ExportFeatureClassGDB.py"
