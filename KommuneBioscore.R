@@ -30,7 +30,7 @@ typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 final = merge(muni, typen, by = c('KommuneID', 'Type'))
 final[,AvgScore:=log(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
 final[TypeCode == 6, AvgScore:=0.77]
-final[Type == 'ByerHuseVeje', AvgScore:=0.26]
+final[Type == 'ByerHuseVeje', AvgScore:=0.26/4]
 andet = copy(final)
 andet = unique(andet[, .(KommuneID, Type, AvgScore, TypeAndel.x)])
 andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, TypeAndel.x), by = c('KommuneID')][Type != 'Andet',.(KommuneID, AvgScore)])
@@ -38,7 +38,11 @@ andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, TypeAnde
 final[Type == 'Andet', AvgScore:=andet[,AvgScore]]
 final[AvgScore > log(13), AvgScore:=log(13), by = c('KommuneID', 'Type')]
 
-# Log giver negative værdier
+# Beregn naturkapital index:
+natind = unique(final[, .(KommuneID, Type, xmax, xmin, AvgScore)])
+natind[,x:=xmax-xmin, by = KommuneID]
+natind[,TypeAreal:=x*AvgScore, by = KommuneID]
+natind[,NatKapInd:=(sum(TypeAreal)/(log(13)*100))*100, by = KommuneID]
 
 # Set up the color scheme:
 dark2 = brewer.pal(8, 'Dark2')
@@ -56,9 +60,11 @@ cols = c("Skov" = dark2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex16_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
+	NatKapInd = unique(natind[KommuneID == munisID[i], NatKapInd])
+	komnavn = paste(komnavn, round(NatKapInd), sep = ' - ')
 	p = ggplot(final[KommuneID == munisID[i],], aes(ymin = 0, ymax = AvgScore, xmin = xmin, xmax = xmax,
 		fill = factor(Type))) + ylab('Naturværdi') + xlab('Arealandel (%)') + ggtitle(komnavn)
 	p = p + geom_rect() + theme_bw() + 
