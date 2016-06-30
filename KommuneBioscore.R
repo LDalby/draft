@@ -42,7 +42,10 @@ final[AvgScore > log(13), AvgScore:=log(13), by = c('KommuneID', 'Type')]
 natind = unique(final[, .(KommuneID, Type, xmax, xmin, AvgScore)])
 natind[,x:=xmax-xmin, by = KommuneID]
 natind[,TypeAreal:=x*AvgScore, by = KommuneID]
-natind[,NatKapInd:=(sum(TypeAreal)/(log(13)*100))*100, by = KommuneID]
+natind[,NatKapInd:=round((sum(TypeAreal)/(log(13)*100))*100), by = KommuneID]
+
+# Skriv tabel med KommuneID og NatKapInd:
+# write.table(unique(natind[,.(KommuneID, NatKapInd)]), file = 'C:/Users/lada/Desktop/NatKapInd.txt', sep = '\t', row.names = FALSE, quote = FALSE)
 
 # Set up the color scheme:
 dark2 = brewer.pal(8, 'Dark2')
