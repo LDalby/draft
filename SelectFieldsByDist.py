@@ -69,3 +69,9 @@ for index in range(len(locations)):
   outpath = os.path.join(pathtofields, locations[index])
   arcpy.Merge_management([outpath+inLayers[0]+".shp",outpath+inLayers[1]+".shp",
   outpath+inLayers[2]+".shp",outpath+inLayers[3]+".shp",outpath+inLayers[4]+".shp"], finalloc)
+
+
+# Remove anything from the p-3 layer that is covered in any of the other layers
+eraseOutput = "C:/output/Output.gdb/suitable_vegetation_minus_roads"
+xyTol = "1 Meters"
+arcpy.Erase_analysis(p-3, mergedlayer, differencep-3, xyTol)
