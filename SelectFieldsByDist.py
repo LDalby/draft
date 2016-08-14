@@ -74,4 +74,14 @@ for index in range(len(locations)):
 # Remove anything from the p-3 layer that is covered in any of the other layers
 eraseOutput = "C:/output/Output.gdb/suitable_vegetation_minus_roads"
 xyTol = "1 Meters"
-arcpy.Erase_analysis(p-3, mergedlayer, differencep-3, xyTol)
+# The p-3 layer:
+p3layer = os.path.join(inGDB, 'paragraf3')
+arcpy.MakeFeatureLayer_management(p3layer, 'paragraf3' + "_lyr")
+for index in range(len(locations)):
+  # Setup paths
+  finallocfile = locations[index] + "Final.shp"
+  finalloc = os.path.join(pathtofields, finallocfile)
+  difflocfile = locations[index] + "P3diff.shp"
+  diffloc = os.path.join(pathtofields, difflocfile)
+  # Erase
+  arcpy.Erase_analysis(p3layer, finalloc, diffloc, xyTol)
