@@ -7,7 +7,7 @@ arcpy.CheckOutExtension("Spatial")
 arcpy.env.parallelProcessingFactor = "75%"
 # Set local variables
 inGDB = "O:/ST_LandskabsGenerering/gis/dkgis.gdb"
-inLayers = ["MarkerDK2013", "soer", "bygning", "lavbebyg", "skov"]
+inLayers = ["MarkerDK2013", "soer", "bygning", "lavbebyg", "skov", "paragraf3"]
 inRingingSites = "O:/ST_Starlings/GIS/RingingSites.txt"
 # Set spatial reference:
 prj = arcpy.SpatialReference("WGS 1984 UTM Zone 32N")
@@ -60,28 +60,23 @@ for jndex in range(len(inLayers)):
     # Make the file name
     layerlocfile = locations[index] + inLayers[jndex] + ".shp"
     fieldloc = os.path.join(pathtofields, layerlocfile)
+    if arcpy.Exists(fieldloc):
+      arcpy.Delete_management(fieldloc)
     print fieldloc
     arcpy.CopyFeatures_management(inLayers[jndex] + "_lyr", fieldloc)
-# Merge the shapefiles into one:
+# Remove anything from the p-3 layer that is covered in any of the other layers
+xyTol = "1 Meters"
+# Merge the shapefiles into one, but leave the paragraf3 layer:
 for index in range(len(locations)):
   finallocfile = locations[index] + "Final.shp"
   finalloc = os.path.join(pathtofields, finallocfile)
   outpath = os.path.join(pathtofields, locations[index])
   arcpy.Merge_management([outpath+inLayers[0]+".shp",outpath+inLayers[1]+".shp",
   outpath+inLayers[2]+".shp",outpath+inLayers[3]+".shp",outpath+inLayers[4]+".shp"], finalloc)
-
-
-# Remove anything from the p-3 layer that is covered in any of the other layers
-eraseOutput = "C:/output/Output.gdb/suitable_vegetation_minus_roads"
-xyTol = "1 Meters"
-# The p-3 layer:
-p3layer = os.path.join(inGDB, 'paragraf3')
-arcpy.MakeFeatureLayer_management(p3layer, 'paragraf3' + "_lyr")
-for index in range(len(locations)):
   # Setup paths
-  finallocfile = locations[index] + "Final.shp"
-  finalloc = os.path.join(pathtofields, finallocfile)
   difflocfile = locations[index] + "P3diff.shp"
   diffloc = os.path.join(pathtofields, difflocfile)
+  # The p-3 layer:
+  p3layer = outpath+inLayers[5]+".shp"
   # Erase
   arcpy.Erase_analysis(p3layer, finalloc, diffloc, xyTol)
