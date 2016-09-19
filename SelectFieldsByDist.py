@@ -70,12 +70,16 @@ xyTol = "1 Meters"
 for index in range(len(locations)):
   finallocfile = locations[index] + "Final.shp"
   finalloc = os.path.join(pathtofields, finallocfile)
+  if arcpy.Exists(finalloc):
+      arcpy.Delete_management(finalloc)
   outpath = os.path.join(pathtofields, locations[index])
   arcpy.Merge_management([outpath+inLayers[0]+".shp",outpath+inLayers[1]+".shp",
   outpath+inLayers[2]+".shp",outpath+inLayers[3]+".shp",outpath+inLayers[4]+".shp"], finalloc)
   # Setup paths
   difflocfile = locations[index] + "P3diff.shp"
   diffloc = os.path.join(pathtofields, difflocfile)
+  if arcpy.Exists(diffloc):
+      arcpy.Delete_management(diffloc)
   # The p-3 layer:
   p3layer = outpath+inLayers[5]+".shp"
   # Erase
