@@ -45,7 +45,8 @@ natind[,TypeAreal:=x*AvgScore, by = KommuneID]
 natind[,NatKapInd:=round((sum(TypeAreal)/(log(13)*100))*100), by = KommuneID]
 
 # Skriv tabel med KommuneID og NatKapInd:
-# write.table(unique(natind[,.(KommuneID, NatKapInd)]), file = 'C:/Users/lada/Desktop/NatKapInd.txt', sep = '\t', row.names = FALSE, quote = FALSE)
+write.table(unique(natind[,.(KommuneID, NatKapInd)]), file = 'C:/Users/lada/Desktop/NatKapInd19092016.txt', sep = '\t', row.names = FALSE, quote = FALSE)
+write.table(natind, file = 'C:/Users/lada/Desktop/NatKapInd19092016.txt', sep = '\t', row.names = FALSE, quote = FALSE)
 
 # Set up the color scheme:
 dark2 = brewer.pal(8, 'Dark2')
