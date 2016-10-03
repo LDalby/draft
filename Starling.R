@@ -57,7 +57,6 @@ invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, po
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 availdists = as.data.table(gDistance(ringingsite, newavll, byid = TRUE))
 setnames(availdists, 'Dist')
-newavll = SpatialPointsDataFrame(newavll, availdists)
 #spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
 col = colorschemes$Categorical.12[1:8]
@@ -79,25 +78,18 @@ for (i in seq_along(loggers)) {
 	coordinates(temp) = ~Longitude+Latitude
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
+	spdists = as.data.table(gDistance(ringingsite, sputm, byid = TRUE))
+	setnames(spdists, 'Dist')
 # Availability
 	availtype = over(newavll, fields)
 	availtype[, Dist:=availdists[,Dist]]
 	availtype = availtype[!is.na(CropEarly) | !is.na(CropLate),]
 	availtype[, Response:=0]
 # Use
-	usetype = over(sputm, fields) %>%
-		 as.data.table %>% setnames(old = 'layer', new = 'ID') %>% setkey('ID')
-	usetype = merge(usetype, rfieldsattr, by = 'ID')
+	usetype = over(sputm, fields)
+	usetype[, Dist:=spdists]
 	usetype[, Response:=1]
-    usetype = usetype[, .(ID, Longitude, Latitude, field_type, Response)]
-	usetype = usetype[!field_type %in% c('farm', 'forest'),]
-    # Calculate distance from ringing site to all points:
-	# newavllsp = SpatialPoints(availtype[,.(Longitude, Latitude)], proj4string = utm32)
-	# availdists = gDistance(ringingsite, newavllsp, byid = TRUE)
-	usetypesp = SpatialPoints(usetype[,.(Longitude, Latitude)], proj4string = utm32)
-	usedists = gDistance(ringingsite, usetypesp, byid = TRUE)
-	availtype[, Dist:=availdists]
-	usetype[, Dist:=usedists]
+# Combine use and availability    
 	temp = rbind(availtype, usetype)
 	loggerno = stringr::str_split(loggers[i], '_')[[1]][1]  # Get the ID of the logger
 	temp[, LoggerID:=loggerno]
