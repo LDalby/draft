@@ -22,24 +22,24 @@ setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 loggers = c('S2_8E03440_12052015.txt', 'S3_8A42334_11052015.txt', 'S5_8E03442_16052015.txt', 
 	'S7_8E03443_18052015.txt',	'S8_8E03444_14052015.txt', 'S9_8A43447_18052015.txt', 
 	'S10_8E03446_18052015.txt')
-tmp = file.path('c:/Users/lada/Dropbox/StarlingGPS/Logger/Logger2016/', 'S13_08052016_clean.txt')
+tmp = file.path('c:/Users/lada/Dropbox/StarlingGPS/Logger/Logger2016/', 'S13_8E03628_13052016.txt')
 # Define local variables:
 AvailGridDist = 50  # The gridsize for the availability points
 utm32 = CRS('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
 longlat = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 longlat = CRS("+proj=longlat +datum=WGS84 +no_defs")
-farmcenter = cbind(482807.3, 6154933) %>% SpatialPoints  # The ringing site.
-proj4string(farmcenter) = utm32
+ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string = utm32)
 
-# fields = readShapePoly('C:/Users/lada/Dropbox/StarlingGPS/Fields_hjortkaer10032016.shp')
-fields = readShapePoly('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/HjortkaerMerged4.shp')
+# Read in the base map:
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
 proj4string(fields) = utm32
+# and Henning field recordings:
 crops = as.data.table(read_excel('c:/Users/lada/Dropbox/Hjortkaer/GIS_Crop_Hjortkaer.xls'))
 crops[, Note:=NULL]
-
+# Join them onto the basemap using the FID column:
 fdata = as.data.table(left_join(fields@data, crops, by='FID'))
 fdata[, cat:=NULL]
+# Overwrite all the rows that didn't have field recording, with the basemap type:
 fdata[FID == 0, CropEarly:=FEAT_TYPE]
 fdata[FID == 0, CropLate:=FEAT_TYPE]
 fields@data = fdata
@@ -50,13 +50,15 @@ invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, po
 
 # fieldsutm = spTransform(fields, utm32)
 # fieldsutmpoly = fieldsutm  # save for plotting further down.
-# fieldsutm = fieldsutm[which(fieldsutm$id != 99 | is.na(fieldsutm$id)),]  # Remove the ringing site farm
-ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string = utm32)
-r = raster(extent(bbox(fields)), crs = utm32, resolution = c(1,1))
-rfields = rasterize(fields, r)
+# r = raster(extent(bbox(fields)), crs = utm32, resolution = c(1,1))
+# rfields = rasterize(fields, r)
 # levels(rfields)[[1]]$field_type = sapply(levels(rfields)[[1]]$field_type, FUN = ReclassifyHabitat)
 # rfieldsattr = levels(rfields)[[1]][, c('ID', 'field_type')] %>% as.data.table %>% setkey('ID')
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
+availdists = as.data.table(gDistance(ringingsite, newavll, byid = TRUE))
+setnames(availdists, 'Dist')
+newavll = SpatialPointsDataFrame(newavll, availdists)
+#spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
 col = colorschemes$Categorical.12[1:8]
 lp = levelplot(rfields, att = 'CropEarly', col.regions = col)
@@ -67,6 +69,8 @@ lp + layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'white', cex =
 
 TheList = vector('list', length = length(loggers))
 ThePlotList = TheList
+loggers = tmp
+i=1
 for (i in seq_along(loggers)) {
 	temp = CleanRawFile(loggers[i], HDOPmax = 2.5, type = 'gipsy-5')
 	temp = temp[Speed == 0,]  # Only use observations where the bird didn't move
@@ -76,23 +80,22 @@ for (i in seq_along(loggers)) {
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
 # Availability
-	availtype = raster::extract(rfields, newavll, sp = TRUE) %>%
-		 as.data.table %>% setnames(old = 'layer', new = 'ID') %>% setkey('ID')
-	availtype = merge(availtype, rfieldsattr, by = 'ID')
+	availtype = over(newavll, fields)
+	availtype[, Dist:=availdists[,Dist]]
+	availtype = availtype[!is.na(CropEarly) | !is.na(CropLate),]
 	availtype[, Response:=0]
-	setnames(availtype, old = c('Var1', 'Var2'), new = c('Longitude', 'Latitude'))
 # Use
-	usetype = raster::extract(rfields, sputm, sp = TRUE) %>%
+	usetype = over(sputm, fields) %>%
 		 as.data.table %>% setnames(old = 'layer', new = 'ID') %>% setkey('ID')
 	usetype = merge(usetype, rfieldsattr, by = 'ID')
 	usetype[, Response:=1]
     usetype = usetype[, .(ID, Longitude, Latitude, field_type, Response)]
 	usetype = usetype[!field_type %in% c('farm', 'forest'),]
     # Calculate distance from ringing site to all points:
-	newavllsp = SpatialPoints(availtype[,.(Longitude, Latitude)], proj4string = utm32)
-	availdists = gDistance(farmcenter, newavllsp, byid = TRUE)
+	# newavllsp = SpatialPoints(availtype[,.(Longitude, Latitude)], proj4string = utm32)
+	# availdists = gDistance(ringingsite, newavllsp, byid = TRUE)
 	usetypesp = SpatialPoints(usetype[,.(Longitude, Latitude)], proj4string = utm32)
-	usedists = gDistance(farmcenter, usetypesp, byid = TRUE)
+	usedists = gDistance(ringingsite, usetypesp, byid = TRUE)
 	availtype[, Dist:=availdists]
 	usetype[, Dist:=usedists]
 	temp = rbind(availtype, usetype)
