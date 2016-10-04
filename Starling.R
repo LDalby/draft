@@ -19,21 +19,27 @@ library(readxl)
 setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 # setwd('/Users/Lars/Dropbox/Data filer R/Starling/')
 # 'S1_8A81455_12052015.txt'  Too few data points
+# 2015:
 loggers = c('S2_8E03440_12052015.txt', 'S3_8A42334_11052015.txt', 'S5_8E03442_16052015.txt', 
 	'S7_8E03443_18052015.txt',	'S8_8E03444_14052015.txt', 'S9_8A43447_18052015.txt', 
 	'S10_8E03446_18052015.txt')
-tmp = file.path('c:/Users/lada/Dropbox/StarlingGPS/Logger/Logger2016/', 'S13_8E03628_13052016.txt')
+# 2016: 
+# The 2016 loggers were cleaned one by one as there were a couple of things that 
+# needed sorting out. 
+loggerpth = 'c:/Users/lada/Dropbox/StarlingGPS/Logger/Logger2016/'
+files = dir(loggerpth)
+loggers = files[-grep('clean', files)]
 # Define local variables:
 AvailGridDist = 50  # The gridsize for the availability points
 utm32 = CRS('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
 longlat = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-longlat = CRS("+proj=longlat +datum=WGS84 +no_defs")
+# longlat = CRS("+proj=longlat +datum=WGS84 +no_defs")
 ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string = utm32)
 
 # Read in the base map:
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
 proj4string(fields) = utm32
-# and Henning field recordings:
+# and Henning's field recordings:
 crops = as.data.table(read_excel('c:/Users/lada/Dropbox/Hjortkaer/GIS_Crop_Hjortkaer.xls'))
 crops[, Note:=NULL]
 # Join them onto the basemap using the FID column:
@@ -47,16 +53,9 @@ fields@data = fdata
 plot(fields)
 invisible(text(coordinates(fields), labels=as.character(fields$CropEarly), cex=0.7, pos = 1))
 invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, pos = 1))
-
-# fieldsutm = spTransform(fields, utm32)
-# fieldsutmpoly = fieldsutm  # save for plotting further down.
-# r = raster(extent(bbox(fields)), crs = utm32, resolution = c(1,1))
-# rfields = rasterize(fields, r)
-# levels(rfields)[[1]]$field_type = sapply(levels(rfields)[[1]]$field_type, FUN = ReclassifyHabitat)
-# rfieldsattr = levels(rfields)[[1]][, c('ID', 'field_type')] %>% as.data.table %>% setkey('ID')
+# Make availability grid:
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
-availdists = as.data.table(gDistance(ringingsite, newavll, byid = TRUE))
-setnames(availdists, 'Dist')
+availdists = as.vector(gDistance(ringingsite, newavll, byid = TRUE))
 #spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
 col = colorschemes$Categorical.12[1:8]
@@ -68,33 +67,32 @@ lp + layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'white', cex =
 
 TheList = vector('list', length = length(loggers))
 ThePlotList = TheList
-loggers = tmp
-i=1
 for (i in seq_along(loggers)) {
-	temp = CleanRawFile(loggers[i], HDOPmax = 2.5, type = 'gipsy-5')
+	temp = CleanRawFile(file.path(loggerpth, loggers[i]), HDOPmax = 2.5, type = 'gipsy-5')
+	temp = temp[year(Date) == 2016,]  # Only use observations where the bird didn't move
 	temp = temp[Speed == 0,]  # Only use observations where the bird didn't move
 	temp = temp[hour(Date) < 18,]  # Only use day time observations
 # Make spatial object:
 	coordinates(temp) = ~Longitude+Latitude
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
-	spdists = as.data.table(gDistance(ringingsite, sputm, byid = TRUE))
-	setnames(spdists, 'Dist')
+	spdists = as.vector(gDistance(ringingsite, sputm, byid = TRUE))
 # Availability
 	availtype = over(newavll, fields)
-	availtype[, Dist:=availdists[,Dist]]
+	availtype$Dist = availdists
 	availtype = availtype[!is.na(CropEarly) | !is.na(CropLate),]
 	availtype[, Response:=0]
 # Use
 	usetype = over(sputm, fields)
-	usetype[, Dist:=spdists]
+	usetype$Dist = spdists
 	usetype[, Response:=1]
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
 	loggerno = stringr::str_split(loggers[i], '_')[[1]][1]  # Get the ID of the logger
 	temp[, LoggerID:=loggerno]
 	TheList[[i]] = temp
-	ThePlotList[[i]] = usetypesp
+	sputm$LoggerID = loggerno
+	ThePlotList[[i]] = sputm
 }
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/IndividualUse.pdf')
 # pdf(file = '/Users/Lars/Dropbox/StarlingGPS/IndividualUse.pdf')
