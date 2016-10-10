@@ -85,6 +85,7 @@ for (i in seq_along(loggers)) {
 # Use
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
+	usetype = usetype[!is.na(CropEarly) | !is.na(CropLate),]
 	usetype[, Response:=1]
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
@@ -103,7 +104,7 @@ for (i in seq_along(loggers)) {
 }
 # dev.off()
 # Combine the items in TheList to a data.table:
-starlings = do.call('rbind', TheList)
+starlings = rbindlist(TheList)
 setnames(starlings, old = c('ID', 'field_type'), new = c('PolyID', 'FieldType'))
 write.table(starlings, file = paste0('Starlings', Sys.Date(), '.txt'), quote = FALSE, row.names = FALSE)
 # Attempt at Fig1
