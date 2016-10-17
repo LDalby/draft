@@ -11,10 +11,11 @@ library(magrittr)
 library(data.table)
 library(maptools)
 library(rgeos)
-library(lme4)
+# library(lme4)
 library(rasterVis)
 library(dichromat)
 library(readxl)
+library(dplyr)
 
 setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 # setwd('/Users/Lars/Dropbox/Data filer R/Starling/')
@@ -40,18 +41,20 @@ ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string 
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
 proj4string(fields) = utm32
 # and Henning's field recordings:
-crops = as.data.table(read_excel('c:/Users/lada/Dropbox/Hjortkaer/GIS_Crop_Hjortkaer.xls'))
-crops[, Note:=NULL]
+# crops = as.data.table(read_excel('c:/Users/lada/Dropbox/Hjortkaer/GIS_Crop_Hjortkaer.xls'))
+crops = as.data.table(read_excel('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/GIS_Crop_Hjortkaer_LD.xls'))
+crops[, c("Note2015", "Note2016"):=NULL]
 # Join them onto the basemap using the FID column:
 fdata = as.data.table(left_join(fields@data, crops, by='FID'))
 fdata[, cat:=NULL]
 # Overwrite all the rows that didn't have field recording, with the basemap type:
-fdata[FID == 0, CropEarly:=FEAT_TYPE]
-fdata[FID == 0, CropLate:=FEAT_TYPE]
+fdata[FID == 0, Crop2016Early:=FEAT_TYPE]
+fdata[FID == 0, Crop2016Late:=FEAT_TYPE]
+fdata[FID == 0, Crop2015:=FEAT_TYPE]
 fields@data = fdata
 # Just checking:
 plot(fields)
-invisible(text(coordinates(fields), labels=as.character(fields$CropEarly), cex=0.7, pos = 1))
+invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
 invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, pos = 1))
 # Make availability grid:
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
@@ -59,8 +62,8 @@ availdists = as.vector(gDistance(ringingsite, newavll, byid = TRUE))
 #spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
 col = colorschemes$Categorical.12[1:8]
-lp = levelplot(rfields, att = 'CropEarly', col.regions = col)
-lp = levelplot(rfields, att = 'CropEarly')
+lp = levelplot(rfields, att = 'Crop2016Early', col.regions = col)
+lp = levelplot(rfields, att = 'Crop2016Early')
 lp = lp + layer(sp.polygons(fields))
 lp + layer(sp.points(newavll, pch = 19, col = 'red', cex = .5))
 lp + layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'white', cex = 2))
@@ -80,12 +83,12 @@ for (i in seq_along(loggers)) {
 # Availability
 	availtype = over(newavll, fields)
 	availtype$Dist = availdists
-	availtype = availtype[!is.na(CropEarly) | !is.na(CropLate),]
+	availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late),]
 	availtype[, Response:=0]
 # Use
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
-	usetype = usetype[!is.na(CropEarly) | !is.na(CropLate),]
+	usetype = usetype[!is.na(Crop2016Early) | !is.na(Crop2016Late),]
 	usetype[, Response:=1]
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
