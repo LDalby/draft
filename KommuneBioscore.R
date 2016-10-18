@@ -29,6 +29,7 @@ typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 # Merge them back together:
 final = merge(muni, typen, by = c('KommuneID', 'Type'))
 final[,AvgScore:=log(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
+final[, BioScoreRaw:=weighted.mean(Bioscore, Areal), by = c('KommuneID', 'Type')]
 final[TypeCode == 6, AvgScore:=0.77]
 final[Type == 'ByerHuseVeje', AvgScore:=0.26/4]
 andet = copy(final)
@@ -44,9 +45,13 @@ natind[,x:=xmax-xmin, by = KommuneID]
 natind[,TypeAreal:=x*AvgScore, by = KommuneID]
 natind[,NatKapInd:=round((sum(TypeAreal)/(log(13)*100))*100), by = KommuneID]
 
+tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin]
+tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin, by = c('KommuneID', 'Type')]
+tmp = unique(tmp[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, Areal)])
 # Skriv tabel med KommuneID og NatKapInd:
 write.table(unique(natind[,.(KommuneID, NatKapInd)]), file = 'C:/Users/lada/Desktop/NatKapInd19092016.txt', sep = '\t', row.names = FALSE, quote = FALSE)
 write.table(natind, file = 'C:/Users/lada/Desktop/NatKapInd19092016.txt', sep = '\t', row.names = FALSE, quote = FALSE)
+write.table(tmp, file = 'C:/Users/lada/Desktop/OpsummeretNatKapInd18102016.txt', sep = '\t', row.names = FALSE, quote = FALSE)
 
 # Set up the color scheme:
 dark2 = brewer.pal(8, 'Dark2')
@@ -64,7 +69,7 @@ cols = c("Skov" = dark2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
+# pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	NatKapInd = unique(natind[KommuneID == munisID[i], NatKapInd])
@@ -77,6 +82,6 @@ for (i in seq_along(munisID)) {
 	scale_x_continuous(breaks = seq(0, 100, length.out = 11))
 	print(p)
 }
-dev.off()
+# dev.off()
 
 colour = I("grey")
