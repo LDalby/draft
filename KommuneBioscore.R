@@ -44,7 +44,7 @@ natind = unique(final[, .(KommuneID, Type, xmax, xmin, AvgScore)])
 natind[,x:=xmax-xmin, by = KommuneID]
 natind[,TypeAreal:=x*AvgScore, by = KommuneID]
 natind[,NatKapInd:=round((sum(TypeAreal)/(log(13)*100))*100), by = KommuneID]
-
+# Opsummér Bioscore, areal osv.
 tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin]
 tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin, by = c('KommuneID', 'Type')]
 tmp = unique(tmp[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, Areal)])
@@ -69,7 +69,7 @@ cols = c("Skov" = dark2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
-# pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
 for (i in seq_along(munisID)) {
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	NatKapInd = unique(natind[KommuneID == munisID[i], NatKapInd])
@@ -82,6 +82,6 @@ for (i in seq_along(munisID)) {
 	scale_x_continuous(breaks = seq(0, 100, length.out = 11))
 	print(p)
 }
-# dev.off()
+dev.off()
 
 colour = I("grey")

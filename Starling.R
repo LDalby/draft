@@ -47,11 +47,20 @@ crops[, c("Note2015", "Note2016"):=NULL]
 # Join them onto the basemap using the FID column:
 fdata = as.data.table(left_join(fields@data, crops, by='FID'))
 fdata[, cat:=NULL]
+# Ensure name match between base map and field recordings
+fdata[FEAT_TYPE == 'P3', FEAT_TYPE:='Meadow']
 # Overwrite all the rows that didn't have field recording, with the basemap type:
 fdata[FID == 0, Crop2016Early:=FEAT_TYPE]
 fdata[FID == 0, Crop2016Late:=FEAT_TYPE]
 fdata[FID == 0, Crop2015:=FEAT_TYPE]
+# Ensure name match between base map and field recordings
+fdata[Crop2015 == 'Trees', Crop2015:= 'Forest']
+fdata[Crop2016Early == 'Trees', Crop2016Early:= 'Forest']
+fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
 fields@data = fdata
+fields = spTransform(fields, CRS("+init=epsg:4326"))
+bb = bbox(fields)
+save(list = c('bb', 'fields'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
 # Just checking:
 plot(fields)
 invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
