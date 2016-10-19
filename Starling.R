@@ -57,6 +57,7 @@ fdata[Crop2015 == 'Trees', Crop2015:= 'Forest']
 fdata[Crop2016Early == 'Trees', Crop2016Early:= 'Forest']
 fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
 fields@data = fdata
+# Transform to shiny coords:
 fields = spTransform(fields, CRS("+init=epsg:4326"))
 bb = bbox(fields)
 save(list = c('bb', 'fields'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
@@ -66,6 +67,8 @@ invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), c
 invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, pos = 1))
 # Make availability grid:
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
+# Transform to shiny coords:
+newavll = spTransform(newavll, CRS("+init=epsg:4326"))
 availdists = as.vector(gDistance(ringingsite, newavll, byid = TRUE))
 #spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
