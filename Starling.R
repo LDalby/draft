@@ -35,6 +35,8 @@ utm32 = CRS('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
 longlat = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 # longlat = CRS("+proj=longlat +datum=WGS84 +no_defs")
 ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string = utm32)
+# Transform to shiny projection:
+ringingsite = spTransform(fields, CRS("+init=epsg:4326"))
 
 # Read in the base map:
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
@@ -60,7 +62,6 @@ fields@data = fdata
 # Transform to shiny coords:
 fields = spTransform(fields, CRS("+init=epsg:4326"))
 bb = bbox(fields)
-save(list = c('bb', 'fields'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
 # Just checking:
 plot(fields)
 invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
@@ -69,6 +70,8 @@ invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, po
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 # Transform to shiny coords:
 newavll = spTransform(newavll, CRS("+init=epsg:4326"))
+# Save the objects needed for vis in shiny app:
+save(list = c('bb', 'fields', 'ringingsite', 'newavll'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
 availdists = as.vector(gDistance(ringingsite, newavll, byid = TRUE))
 #spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
 # col = brewer.pal(11, 'Set3')
