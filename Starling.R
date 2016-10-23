@@ -86,6 +86,7 @@ for (i in seq_along(loggers)) {
 	spdists = as.vector(gDistance(ringingsite, sputm, byid = TRUE))
 	sputm$Dist = spdists  # Add to visualization object, so we can display in popup info in the app
 # Use
+	# usetype = rbindlist(over(sputm, fields, returnList = TRUE))
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
 	usetype = usetype[!is.na(Crop2016Early) | !is.na(Crop2016Late),]
@@ -101,6 +102,16 @@ for (i in seq_along(loggers)) {
 }
 # Combine the items in TheList to a data.table:
 starlings = rbindlist(TheList)
+early = c('S15', 'S14', 'S24', 'S13', 'S17', 'S4a', 'S11', 'S9a', 'S12', 'S1')
+early = paste(early, '2016', sep = '-')
+late = c('S21', 'S4b', 'S9b', 'S23', 'S16')
+late = paste(late, '2016', sep = '-')
+starlings[LoggerID %in% early, Cover:=Crop2016Early]
+starlings[LoggerID %in% late, Cover:=Crop2016Late]
+starlings[grep('2015', LoggerID), Cover:=Crop2015]
+starlings[, c('Crop2016Early', 'Crop2016Late', 'Crop2015'):=NULL]
+setcolorder(starlings, c('LoggerID', 'Cover', 'Dist', 'PolyID', 'Response'))
+starlings[, Dist:=round(Dist)]
 write.table(starlings, file = paste0('Starlings', Sys.Date(), '.txt'), quote = FALSE, row.names = FALSE)
 spstarlings = do.call('rbind', ThePlotList)
 spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
