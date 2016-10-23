@@ -20,7 +20,7 @@ setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 # setwd('/Users/Lars/Dropbox/Data filer R/Starling/')
 # Both years - uncleaned data. Cleaning done in loop further down.
 loggerpth = 'c:/Users/lada/Dropbox/StarlingGPS/Logger/Loggers15-16/'
-files = dir(loggerpth)
+loggers = dir(loggerpth)
 # Define local variables:
 AvailGridDist = 50  # The gridsize for the availability points
 utm32 = CRS('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
@@ -49,14 +49,15 @@ fdata[Crop2015 == 'Trees', Crop2015:= 'Forest']
 fdata[Crop2016Early == 'Trees', Crop2016Early:= 'Forest']
 fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
 fdata[, c('FEAT_TYPE', 'FID'):=NULL]
+fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
 # Transform to shiny coords:
 # fields = spTransform(fields, CRS("+init=epsg:4326"))
 # bb = bbox(fields)
 # Just checking:
-plot(fields)
-invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
-invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, pos = 1))
+# plot(fields)
+# invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
+# invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, pos = 1))
 # Make availability grid:
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 # Transform to shiny coords:
@@ -65,9 +66,9 @@ newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 # save(list = c('bb', 'fields', 'ringingsite', 'newavll'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
 
 # Availability handled outside the loop as they are the same for all 
-availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
 availtype = over(newavll, fields)
-availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late | !is.na(Crop2015),]
+availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
+availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late) | !is.na(Crop2015),]
 availtype[, Response:=0]
 
 TheList = vector('list', length = length(loggers))
@@ -83,7 +84,7 @@ for (i in seq_along(loggers)) {
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
 	spdists = as.vector(gDistance(ringingsite, sputm, byid = TRUE))
-	sputm$Dist = spdists  # Add to visualization object, so we can display in as popup info in the app
+	sputm$Dist = spdists  # Add to visualization object, so we can display in popup info in the app
 # Use
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
@@ -98,17 +99,8 @@ for (i in seq_along(loggers)) {
 	sputm$LoggerID = loggerno
 	ThePlotList[[i]] = sputm
 }
-# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/IndividualUse.pdf')
-# pdf(file = '/Users/Lars/Dropbox/StarlingGPS/IndividualUse.pdf')
-for (i in seq_along(loggers)) {
-	 print(lp + layer(sp.points(ThePlotList[[i]], col = rainbow(7)[i], cex = .5)) +
-	layer(panel.text(481700, 6156000, stringr::str_split(loggers[i], '_')[[1]][1]))
-	)
-}
-# dev.off()
 # Combine the items in TheList to a data.table:
 starlings = rbindlist(TheList)
-setnames(starlings, old = c('ID', 'field_type'), new = c('PolyID', 'FieldType'))
 write.table(starlings, file = paste0('Starlings', Sys.Date(), '.txt'), quote = FALSE, row.names = FALSE)
 spstarlings = do.call('rbind', ThePlotList)
 spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
@@ -129,6 +121,14 @@ save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData
 
 
 
+# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/IndividualUse.pdf')
+# pdf(file = '/Users/Lars/Dropbox/StarlingGPS/IndividualUse.pdf')
+for (i in seq_along(loggers)) {
+	 print(lp + layer(sp.points(ThePlotList[[i]], col = rainbow(7)[i], cex = .5)) +
+	layer(panel.text(481700, 6156000, stringr::str_split(loggers[i], '_')[[1]][1]))
+	)
+}
+# dev.off()
 
 
 
