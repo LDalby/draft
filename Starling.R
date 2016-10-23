@@ -1,4 +1,4 @@
-# Starlings
+# Starlings - Hjortkaer
 # Script to handle and analyze starling gps data
 # Date: Oct 2016
 # Author: Lars Dalby
@@ -18,31 +18,21 @@ library(dplyr)
 
 setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 # setwd('/Users/Lars/Dropbox/Data filer R/Starling/')
-# 'S1_8A81455_12052015.txt'  Too few data points
-# 2015:
-loggers = c('S2_8E03440_12052015.txt', 'S3_8A42334_11052015.txt', 'S5_8E03442_16052015.txt', 
-	'S7_8E03443_18052015.txt',	'S8_8E03444_14052015.txt', 'S9_8A43447_18052015.txt', 
-	'S10_8E03446_18052015.txt')
-# 2016: 
-# The 2016 loggers were cleaned one by one as there were a couple of things that 
-# needed sorting out. 
-loggerpth = 'c:/Users/lada/Dropbox/StarlingGPS/Logger/Logger2016/'
+# Both years - uncleaned data. Cleaning done in loop further down.
+loggerpth = 'c:/Users/lada/Dropbox/StarlingGPS/Logger/Loggers15-16/'
 files = dir(loggerpth)
-loggers = files[-grep('clean', files)]
 # Define local variables:
 AvailGridDist = 50  # The gridsize for the availability points
 utm32 = CRS('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
 longlat = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-# longlat = CRS("+proj=longlat +datum=WGS84 +no_defs")
 ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string = utm32)
 # Transform to shiny projection:
-ringingsite = spTransform(fields, CRS("+init=epsg:4326"))
+# ringingsite = spTransform(ringingsite, CRS("+init=epsg:4326"))
 
 # Read in the base map:
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
 proj4string(fields) = utm32
 # and Henning's field recordings:
-# crops = as.data.table(read_excel('c:/Users/lada/Dropbox/Hjortkaer/GIS_Crop_Hjortkaer.xls'))
 crops = as.data.table(read_excel('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/GIS_Crop_Hjortkaer_LD.xls'))
 crops[, c("Note2015", "Note2016"):=NULL]
 # Join them onto the basemap using the FID column:
@@ -58,10 +48,11 @@ fdata[FID == 0, Crop2015:=FEAT_TYPE]
 fdata[Crop2015 == 'Trees', Crop2015:= 'Forest']
 fdata[Crop2016Early == 'Trees', Crop2016Early:= 'Forest']
 fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
+fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fields@data = fdata
 # Transform to shiny coords:
-fields = spTransform(fields, CRS("+init=epsg:4326"))
-bb = bbox(fields)
+# fields = spTransform(fields, CRS("+init=epsg:4326"))
+# bb = bbox(fields)
 # Just checking:
 plot(fields)
 invisible(text(coordinates(fields), labels=as.character(fields$Crop2016Early), cex=0.7, pos = 1))
@@ -69,24 +60,22 @@ invisible(text(coordinates(fields), labels=as.character(fields$FID), cex=0.7, po
 # Make availability grid:
 newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 # Transform to shiny coords:
-newavll = spTransform(newavll, CRS("+init=epsg:4326"))
+# newavll = spTransform(newavll, CRS("+init=epsg:4326"))
 # Save the objects needed for vis in shiny app:
-save(list = c('bb', 'fields', 'ringingsite', 'newavll'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
-availdists = as.vector(gDistance(ringingsite, newavll, byid = TRUE))
-#spplot(newavll, zcol = 'Dist')  # Just chekcing - looks okay
-# col = brewer.pal(11, 'Set3')
-col = colorschemes$Categorical.12[1:8]
-lp = levelplot(rfields, att = 'Crop2016Early', col.regions = col)
-lp = levelplot(rfields, att = 'Crop2016Early')
-lp = lp + layer(sp.polygons(fields))
-lp + layer(sp.points(newavll, pch = 19, col = 'red', cex = .5))
-lp + layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'white', cex = 2))
+# save(list = c('bb', 'fields', 'ringingsite', 'newavll'), file = 'C:/Users/lada/Git/shiny/Starlings/Data/fields.RData')
+
+# Availability handled outside the loop as they are the same for all 
+availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
+availtype = over(newavll, fields)
+availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late | !is.na(Crop2015),]
+availtype[, Response:=0]
 
 TheList = vector('list', length = length(loggers))
 ThePlotList = TheList
 for (i in seq_along(loggers)) {
 	temp = CleanRawFile(file.path(loggerpth, loggers[i]), HDOPmax = 2.5, type = 'gipsy-5')
-	temp = temp[year(Date) == 2016,]  # Only use observations where the bird didn't move
+	season = stringr::str_sub(loggers[i], start = -8, end = -5)
+	temp = temp[year(Date) == as.numeric(season),]  # Make sure we only get one year of data in case of reuse of logger.
 	temp = temp[Speed == 0,]  # Only use observations where the bird didn't move
 	temp = temp[hour(Date) < 18,]  # Only use day time observations
 # Make spatial object:
@@ -94,11 +83,7 @@ for (i in seq_along(loggers)) {
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
 	spdists = as.vector(gDistance(ringingsite, sputm, byid = TRUE))
-# Availability
-	availtype = over(newavll, fields)
-	availtype$Dist = availdists
-	availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late),]
-	availtype[, Response:=0]
+	sputm$Dist = spdists  # Add to visualization object, so we can display in as popup info in the app
 # Use
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
@@ -107,6 +92,7 @@ for (i in seq_along(loggers)) {
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
 	loggerno = stringr::str_split(loggers[i], '_')[[1]][1]  # Get the ID of the logger
+	loggerno = paste(loggerno, season, sep = '-')
 	temp[, LoggerID:=loggerno]
 	TheList[[i]] = temp
 	sputm$LoggerID = loggerno
@@ -124,6 +110,32 @@ for (i in seq_along(loggers)) {
 starlings = rbindlist(TheList)
 setnames(starlings, old = c('ID', 'field_type'), new = c('PolyID', 'FieldType'))
 write.table(starlings, file = paste0('Starlings', Sys.Date(), '.txt'), quote = FALSE, row.names = FALSE)
+spstarlings = do.call('rbind', ThePlotList)
+spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
+save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Attempt at Fig1
 levels(fieldsutmpoly@data$field_type) = sapply(levels(fieldsutmpoly@data$field_type), FUN = ReclassifyHabitat)
 col = colorschemes$Categorical.12[1:8]
