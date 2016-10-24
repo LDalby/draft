@@ -35,6 +35,7 @@ proj4string(fields) = utm32
 # and Henning's field recordings:
 crops = as.data.table(read_excel('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/GIS_Crop_Hjortkaer_LD.xls'))
 crops[, c("Note2015", "Note2016"):=NULL]
+crops[Crop2015 == 'MINUS', Crop2015:=NA]  # These fields were not recorded in 2015, so we just NA them.
 # Join them onto the basemap using the FID column:
 fdata = as.data.table(left_join(fields@data, crops, by='FID'))
 fdata[, cat:=NULL]
@@ -112,7 +113,7 @@ starlings[grep('2015', LoggerID), Cover:=Crop2015]
 starlings[, c('Crop2016Early', 'Crop2016Late', 'Crop2015'):=NULL]
 setcolorder(starlings, c('LoggerID', 'Cover', 'Dist', 'PolyID', 'Response'))
 starlings[, Dist:=round(Dist)]
-write.table(starlings, file = paste0('Starlings', Sys.Date(), '.txt'), quote = FALSE, row.names = FALSE)
+save(starlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/data.RData')
 spstarlings = do.call('rbind', ThePlotList)
 spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
 save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData')
