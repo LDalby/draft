@@ -79,7 +79,7 @@ for (i in seq_along(loggers)) {
 	season = stringr::str_sub(loggers[i], start = -8, end = -5)
 	temp = temp[year(Date) == as.numeric(season),]  # Make sure we only get one year of data in case of reuse of logger.
 	temp = temp[Speed == 0,]  # Only use observations where the bird didn't move
-	temp = temp[hour(Date) < 18,]  # Only use day time observations
+	temp = temp[as.ITime(Date) %between% c(3.5*3600, 18*3600), ]  # Only use day time observations
 # Make spatial object:
 	coordinates(temp) = ~Longitude+Latitude
 	proj4string(temp) = longlat
