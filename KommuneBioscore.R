@@ -69,8 +69,12 @@ cols = c("Skov" = dark2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
 # Plot:
+path = #sæt sti...
+plotnavn = paste0(komnavn, Sys.Date(), '.pdf')
+filnavn = file.path(path, plotnavn)
 pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
 for (i in seq_along(munisID)) {
+	#pdf(filnavn)
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	NatKapInd = unique(natind[KommuneID == munisID[i], NatKapInd])
 	komnavn = paste(komnavn, round(NatKapInd), sep = ' - ')
@@ -81,6 +85,7 @@ for (i in seq_along(munisID)) {
 	theme(panel.grid.minor = element_blank()) + scale_fill_manual(values = cols, guide = guide_legend(title = "Type")) + 
 	scale_x_continuous(breaks = seq(0, 100, length.out = 11))
 	print(p)
+	#dev.off()
 }
 dev.off()
 
