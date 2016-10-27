@@ -49,6 +49,14 @@ fdata[FID == 0, Crop2015:=FEAT_TYPE]
 fdata[Crop2015 == 'Trees', Crop2015:= 'Forest']
 fdata[Crop2016Early == 'Trees', Crop2016Early:= 'Forest']
 fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
+# Some of the spring sown crops are bare ground this time of the year
+# so these are simply combined into BareGround:
+fdata[Crop2016Early == 'Maize', Crop2016Early:= 'BareGround']
+fdata[Crop2016Late == 'Maize', Crop2016Late:= 'BareGround']
+fdata[grep('S_', Crop2016Early), Crop2016Early:= 'BareGround']
+fdata[grep('S_', Crop2016Late), Crop2016Late:= 'BareGround']
+# HIGH grass and Grass was not consistently recorded, so combine into Grass
+fdata[Crop2015 == 'HIGH Grass', Crop2016:= 'Grass']
 fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
@@ -103,9 +111,9 @@ for (i in seq_along(loggers)) {
 }
 # Combine the items in TheList to a data.table:
 starlings = rbindlist(TheList)
-early = c('S15', 'S14', 'S24', 'S13', 'S17', 'S4a', 'S11', 'S9a', 'S12', 'S1')
+early = c('S15', 'S14', 'S13', 'S17', 'S4a', 'S11', 'S9a', 'S12', 'S1')
 early = paste(early, '2016', sep = '-')
-late = c('S21', 'S4b', 'S9b', 'S23', 'S16')
+late = c('S21', 'S4b', 'S9b')
 late = paste(late, '2016', sep = '-')
 starlings[LoggerID %in% early, Cover:=Crop2016Early]
 starlings[LoggerID %in% late, Cover:=Crop2016Late]
