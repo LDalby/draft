@@ -55,6 +55,7 @@ fdata[Crop2016Early == 'Maize', Crop2016Early:= 'BareGround']
 fdata[Crop2016Late == 'Maize', Crop2016Late:= 'BareGround']
 fdata[grep('S_', Crop2016Early), Crop2016Early:= 'BareGround']
 fdata[grep('S_', Crop2016Late), Crop2016Late:= 'BareGround']
+fdata[grep('S_', Crop2015), Crop2015:= 'BareGround']
 # HIGH grass and Grass was not consistently recorded, so combine into Grass
 fdata[Crop2015 == 'HIGH Grass', Crop2016:= 'Grass']
 fdata[, c('FEAT_TYPE', 'FID'):=NULL]
