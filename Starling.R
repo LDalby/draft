@@ -79,7 +79,7 @@ fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
 # Here we remove the building and garden where the birs where ringed:
-fields = fields[!fields$PolyID %in% c(640, 287, 638, 257),]
+fields = fields[!fields$PolyID %in% c(638, 287, 636, 257),]  # Careful here - hardcoded polyID's!
 # fields = spTransform(fields, CRS("+init=epsg:4326"))
 # bb = bbox(fields)
 # Just checking:
@@ -95,8 +95,8 @@ newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 
 # Availability handled outside the loop as they are the same for all 
 availtype = over(newavll, fields)
-availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late) | !is.na(Crop2015),]
 availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
+availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late) | !is.na(Crop2015),]
 availtype[, Response:=0]
 
 # Read in the logger metadata:
@@ -127,7 +127,7 @@ for (i in seq_along(loggers)) {
 	# usetype = rbindlist(over(sputm, fields, returnList = TRUE))
 	usetype = over(sputm, fields)
 	usetype$Dist = spdists
-	usetype = usetype[!is.na(Crop2016Early) | !is.na(Crop2016Late),]
+	usetype = usetype[!is.na(Crop2016Early) | !is.na(Crop2016Late) | !is.na(Crop2015),]
 	usetype[, Response:=1]
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
@@ -142,7 +142,7 @@ for (i in seq_along(loggers)) {
 starlings = rbindlist(TheList)
 early = c('S15', 'S14', 'S13', 'S17', 'S4a', 'S11', 'S9a', 'S12', 'S1')
 early = paste(early, '2016', sep = '-')
-late = c('S21', 'S4b', 'S9b')
+late = c('S4b', 'S9b')
 late = paste(late, '2016', sep = '-')
 starlings[LoggerID %in% early, Cover:=Crop2016Early]
 starlings[LoggerID %in% late, Cover:=Crop2016Late]
@@ -162,14 +162,24 @@ save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData
 
 
 
+ds = fread('C:/Users/lada/Downloads/Starlings.txt')
+ds[LoggerID == 'S1-2016',]  # 2043
+ds[LoggerID == 'S1-2016' & Response == 1,]  # 174
+ds[Cover == 'Lake',]
+starlings[LoggerID == 'S1-2016',]  # 2051
+starlings[LoggerID == 'S1-2016'& Response == 1,]  # 174
+starlings[Cover == 'Lake',]
 
+identical(starlings[Response == 0, list(.N), by = Cover],
+ds[Response == 0, list(.N), by = Cover])
+identical(starlings[Response == 1, list(.N), by = Cover],
+ds[Response == 1, list(.N), by = Cover])
+starlings[Response == 1, list(.N), by = Cover]
+ds[Response == 1, list(.N), by = Cover]
+starlings[Response == 0, list(.N), by = Cover]
+ds[Response == 0, list(.N), by = Cover]
 
-
-
-
-
-
-
+nrow(starlings) - nrow(ds)
 
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/IndividualUse.pdf')
 # pdf(file = '/Users/Lars/Dropbox/StarlingGPS/IndividualUse.pdf')
