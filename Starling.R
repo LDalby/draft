@@ -158,6 +158,18 @@ save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData
 
 
 
+# Scratch space.
+hist(starlings[LoggerID == "S1-2016" & Response == 1, Dist])
+library(ggplot2)
+ggplot(starlings[Dist <= 1000 & Response == 0,], aes(Dist, ..count.., fill = Cover)) + geom_density(position = 'fill') + 
+scale_fill_brewer(palette = "Set1")
+
+
+
+
+
+
+
 
 
 
