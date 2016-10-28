@@ -15,6 +15,7 @@ library(rasterVis)
 library(dichromat)
 library(readxl)
 library(dplyr)
+library(lubridate)
 
 setwd('c:/Users/lada/Dropbox/Data filer R/Starling/')
 # setwd('/Users/Lars/Dropbox/Data filer R/Starling/')
@@ -31,6 +32,8 @@ ringingsite = SpatialPoints(cbind(482806.60016627, 6154932.799999), proj4string 
 
 # Read in the base map:
 fields = readShapePoly('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
+fields = fields[fields$FEAT_TYPE != "Lake",]  # Essentially non-habitat for starlings, so no need to map it.
+fields = fields[!fields$FID %in% c(110,117),]  # Remove two field polygons which overlap with forest polygons.
 proj4string(fields) = utm32
 # and Henning's field recordings:
 crops = as.data.table(read_excel('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/GIS_Crop_Hjortkaer_LD.xls'))
@@ -53,15 +56,30 @@ fdata[Crop2016Late == 'Trees', Crop2016Late:= 'Forest']
 # so these are simply combined into BareGround:
 fdata[Crop2016Early == 'Maize', Crop2016Early:= 'BareGround']
 fdata[Crop2016Late == 'Maize', Crop2016Late:= 'BareGround']
+fdata[Crop2016Early == 'Fold', Crop2016Early:= 'Grazing']
+fdata[Crop2016Late == 'Fold', Crop2016Late:= 'Grazing']
+fdata[Crop2015 == 'Fold', Crop2015:= 'Grazing']
 fdata[grep('S_', Crop2016Early), Crop2016Early:= 'BareGround']
 fdata[grep('S_', Crop2016Late), Crop2016Late:= 'BareGround']
 fdata[grep('S_', Crop2015), Crop2015:= 'BareGround']
+fdata[grep('W_', Crop2016Early), Crop2016Early:= 'WinterCrop']
+fdata[grep('W_', Crop2016Late), Crop2016Late:= 'WinterCrop']
+fdata[grep('W_', Crop2015), Crop2015:= 'WinterCrop']
+# Rape is a rare crop and functionally similar to the other winter crops at this time:
+fdata[Crop2016Early == 'Rape', Crop2016Early:= 'WinterCrop']
+fdata[Crop2016Late == 'Rape', Crop2016Late:= 'WinterCrop']
+fdata[Crop2015 == 'Rape', Crop2015:= 'WinterCrop']
+# Beet is a rare crop and is functionally similar to the other spring crops, hence bare ground:
+fdata[Crop2016Early == 'Beet', Crop2016Early:= 'BareGround']
+fdata[Crop2016Late == 'Beet', Crop2016Late:= 'BareGround']
+fdata[Crop2015 == 'Beet', Crop2015:= 'BareGround']
 # HIGH grass and Grass was not consistently recorded, so combine into Grass
-fdata[Crop2015 == 'HIGH Grass', Crop2016:= 'Grass']
+fdata[Crop2015 == 'HIGH grass', Crop2015:= 'Grass']
 fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
-# Transform to shiny coords:
+# Here we remove the building and garden where the birs where ringed:
+fields = fields[!fields$PolyID %in% c(640, 287, 638, 257),]
 # fields = spTransform(fields, CRS("+init=epsg:4326"))
 # bb = bbox(fields)
 # Just checking:
@@ -77,9 +95,13 @@ newavll = ExpandAvailGrid(fields, AvailGridDist, utm = TRUE)
 
 # Availability handled outside the loop as they are the same for all 
 availtype = over(newavll, fields)
-availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
 availtype = availtype[!is.na(Crop2016Early) | !is.na(Crop2016Late) | !is.na(Crop2015),]
+availtype$Dist = as.vector(gDistance(ringingsite, newavll, byid = TRUE))  
 availtype[, Response:=0]
+
+# Read in the logger metadata:
+meta = as.data.table(read_excel('c:/Users/lada/Dropbox/StarlingGPS/MetadataHjortkaer15-16.xlsx'))
+meta[,LoggerID:=paste(Logger, Year, sep = '-')]
 
 TheList = vector('list', length = length(loggers))
 ThePlotList = TheList
@@ -89,12 +111,18 @@ for (i in seq_along(loggers)) {
 	temp = temp[year(Date) == as.numeric(season),]  # Make sure we only get one year of data in case of reuse of logger.
 	temp = temp[Speed == 0,]  # Only use observations where the bird didn't move
 	temp = temp[as.ITime(Date) %between% c(3.5*3600, 18*3600), ]  # Only use day time observations
+	if(loggers[i] == 'S1_8E03627_12052016.txt') {
+		temp = temp[Date >= ymd('2016-05-07'),]
+	}
 # Make spatial object:
 	coordinates(temp) = ~Longitude+Latitude
 	proj4string(temp) = longlat
 	sputm = spTransform(temp, utm32)
 	spdists = as.vector(gDistance(ringingsite, sputm, byid = TRUE))
 	sputm$Dist = spdists  # Add to visualization object, so we can display in popup info in the app
+	loggerno = stringr::str_split(loggers[i], '_')[[1]][1]  # Get the ID of the logger
+	loggerno = paste(loggerno, season, sep = '-')
+	sputm$Sex = meta[LoggerID == loggerno, Sex]
 # Use
 	# usetype = rbindlist(over(sputm, fields, returnList = TRUE))
 	usetype = over(sputm, fields)
@@ -103,9 +131,9 @@ for (i in seq_along(loggers)) {
 	usetype[, Response:=1]
 # Combine use and availability    
 	temp = rbind(availtype, usetype)
-	loggerno = stringr::str_split(loggers[i], '_')[[1]][1]  # Get the ID of the logger
-	loggerno = paste(loggerno, season, sep = '-')
+	temp[, Sex:=meta[LoggerID == loggerno, Sex]]
 	temp[, LoggerID:=loggerno]
+	temp[, Year:=season]
 	TheList[[i]] = temp
 	sputm$LoggerID = loggerno
 	ThePlotList[[i]] = sputm
@@ -120,8 +148,9 @@ starlings[LoggerID %in% early, Cover:=Crop2016Early]
 starlings[LoggerID %in% late, Cover:=Crop2016Late]
 starlings[grep('2015', LoggerID), Cover:=Crop2015]
 starlings[, c('Crop2016Early', 'Crop2016Late', 'Crop2015'):=NULL]
-setcolorder(starlings, c('LoggerID', 'Cover', 'Dist', 'PolyID', 'Response'))
+setcolorder(starlings, c('LoggerID', 'Sex', 'Year', 'Cover', 'Dist', 'PolyID', 'Response'))
 starlings[, Dist:=round(Dist)]
+starlings = starlings[!is.na(Cover),]
 save(starlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/data.RData')
 spstarlings = do.call('rbind', ThePlotList)
 spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
