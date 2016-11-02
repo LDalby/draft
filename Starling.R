@@ -37,6 +37,7 @@ fields = fields[!fields$FID %in% c(110,117),]  # Remove two field polygons which
 proj4string(fields) = utm32
 # and Henning's field recordings:
 crops = as.data.table(read_excel('C:/Users/lada/Dropbox/StarlingGPS/Hjortkaer/GIS_Crop_Hjortkaer_LD.xls'))
+crops[FID == 202, Crop2015:='Fold']  # Fix inconsistent recording of Fold/Grass
 crops[, c("Note2015", "Note2016"):=NULL]
 crops[Crop2015 == 'MINUS', Crop2015:=NA]  # These fields were not recorded in 2015, so we just NA them.
 # Join them onto the basemap using the FID column:
