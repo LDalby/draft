@@ -79,7 +79,7 @@ fdata[Crop2015 == 'HIGH grass', Crop2015:= 'Grass']
 fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
-# Here we remove the building and garden where the birs where ringed:
+# Here we remove the building and garden where the birds where ringed:
 fields = fields[!fields$PolyID %in% c(638, 287, 636, 257),]  # Careful here - hardcoded polyID's!
 # fields = spTransform(fields, CRS("+init=epsg:4326"))
 # bb = bbox(fields)
@@ -152,18 +152,10 @@ starlings[, c('Crop2016Early', 'Crop2016Late', 'Crop2015'):=NULL]
 setcolorder(starlings, c('LoggerID', 'Sex', 'Year', 'Cover', 'Dist', 'PolyID', 'Response'))
 starlings[, Dist:=round(Dist)]
 starlings = starlings[!is.na(Cover),]
-save(starlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/data.RData')
+# save(starlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/data.RData')
 spstarlings = do.call('rbind', ThePlotList)
 spstarlings = spTransform(spstarlings, CRS("+init=epsg:4326"))
-save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData')
-
-
-
-# Scratch space.
-hist(starlings[LoggerID == "S1-2016" & Response == 1, Dist])
-library(ggplot2)
-ggplot(starlings[Dist <= 1000 & Response == 0,], aes(Dist, ..count.., fill = Cover)) + geom_density(position = 'fill') + 
-scale_fill_brewer(palette = "Set1")
+# save(spstarlings, file = 'C:/Users/lada/Git/shiny/Starlings/Data/starlings.RData')
 
 
 
@@ -172,27 +164,6 @@ scale_fill_brewer(palette = "Set1")
 
 
 
-
-
-
-ds = fread('C:/Users/lada/Downloads/Starlings.txt')
-ds[LoggerID == 'S1-2016',]  # 2043
-ds[LoggerID == 'S1-2016' & Response == 1,]  # 174
-ds[Cover == 'Lake',]
-starlings[LoggerID == 'S1-2016',]  # 2051
-starlings[LoggerID == 'S1-2016'& Response == 1,]  # 174
-starlings[Cover == 'Lake',]
-
-identical(starlings[Response == 0, list(.N), by = Cover],
-ds[Response == 0, list(.N), by = Cover])
-identical(starlings[Response == 1, list(.N), by = Cover],
-ds[Response == 1, list(.N), by = Cover])
-starlings[Response == 1, list(.N), by = Cover]
-ds[Response == 1, list(.N), by = Cover]
-starlings[Response == 0, list(.N), by = Cover]
-ds[Response == 0, list(.N), by = Cover]
-
-nrow(starlings) - nrow(ds)
 
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/IndividualUse.pdf')
 # pdf(file = '/Users/Lars/Dropbox/StarlingGPS/IndividualUse.pdf')
@@ -210,10 +181,11 @@ for (i in seq_along(loggers)) {
 
 
 # Attempt at Fig1
-levels(fieldsutmpoly@data$field_type) = sapply(levels(fieldsutmpoly@data$field_type), FUN = ReclassifyHabitat)
-col = colorschemes$Categorical.12[1:8]
+# S9a-2016
+col = colorschemes$Categorical.12[1:9]
+fields@data$Crop2015 = as.factor(fields@data$Crop2015)
 pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1.pdf')
-spplot(fieldsutmpoly, 'field_type', col.regions = col, scales = list(draw = TRUE)) +
+spplot(fields, 'Crop2015', col.regions = col, scales = list(draw = TRUE)) +
  layer(sp.points(ThePlotList[[1]], col = 'black'))+
  layer(sp.points(ThePlotList[[2]], col = 'black'))+
  layer(sp.points(ThePlotList[[3]], col = 'black'))+
