@@ -212,18 +212,33 @@ spplot(fieldsutmpoly, 'field_type', col.regions = col, scales = list(draw = TRUE
 dev.off()
 
 # Figure 1 (logger S9a):
+scale1 <- list("SpatialPolygonsRescale", layout.scale.bar(height = 0.1), 
+               offset = c(484000,6153150), scale = 500, fill=c("transparent","black"), which = 1)
+text1 = list("sp.text", c(484000,6153300), "0", which = 1)
+text2 = list("sp.text", c(484500,6153300), "500 m", which = 1)
+
 inch = 2.54
 par(mar = (c(1, 1, 1, 2) + 0.1)/2, oma = rep(0.1, 4))
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.pdf', height = 8/inch, width = 10/inch)
 postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.eps', height = 8/inch, width = 10/inch)
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
-spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey',
-       lwd = 0.2) +
-# spplot(fields, 'Crop2016Late', scales = list(draw = FALSE)) +
+spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
+       sp.layout=list(scale1, text1, text2)) +
   latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.5))  + 
-  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1))
+  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) 
 dev.off()
 # Scale bar needs to be added by hand.
+# logger
+postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.eps', height = 8/inch, width = 10/inch)
+set_Polypath(FALSE)  # Appears to be needed to make lwd work...
+spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
+       sp.layout=list(scale1, text1, text2)) +
+  latticeExtra::layer(sp.points(ThePlotList[[13]], col = 'black', pch = 1, cex = 0.5))  + 
+  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1))
+dev.off()
+
+
+
 
 # Figure S1:  WIP...
 # library(ggplot2)
