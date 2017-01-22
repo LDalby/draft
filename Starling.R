@@ -10,7 +10,6 @@ library(sp)
 library(data.table)
 library(maptools)
 library(rgeos)
-# library(lme4)
 library(rasterVis)
 library(dichromat)
 library(readxl)
@@ -80,6 +79,7 @@ fdata[, c('FEAT_TYPE', 'FID'):=NULL]
 fdata[, PolyID:=1:nrow(fdata)]
 fields@data = fdata
 # Here we remove the building and garden where the birds where ringed:
+pfields = fields  #save an object for plotting the map for the paper
 fields = fields[!fields$PolyID %in% c(638, 287, 636, 257),]  # Careful here - hardcoded polyID's!
 # fields = spTransform(fields, CRS("+init=epsg:4326"))
 # bb = bbox(fields)
@@ -181,11 +181,18 @@ for (i in seq_along(loggers)) {
 
 
 # Attempt at Fig1
-# S9a-2016
-col = colorschemes$Categorical.12[1:9]
-fields@data$Crop2015 = as.factor(fields@data$Crop2015)
-pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1.pdf')
-spplot(fields, 'Crop2015', col.regions = col, scales = list(draw = TRUE)) +
+# S9a-2016 Early period
+col = colorschemes$Categorical.12[1:8]  # Important to get the correct number of levels!
+col[2] = 'black'
+col[3] = 'forestgreen'
+col[4] = 'grey'
+col[8] = 'khaki4'
+
+pfields@data$Crop2015 = as.factor(pfields@data$Crop2015)
+pfields@data$Crop2016Early = as.factor(pfields@data$Crop2016Early)
+pfields@data$Crop2016Late = as.factor(pfields@data$Crop2016Late)
+# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1.pdf')
+spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = TRUE)) +
  layer(sp.points(ThePlotList[[1]], col = 'black'))+
  layer(sp.points(ThePlotList[[2]], col = 'black'))+
  layer(sp.points(ThePlotList[[3]], col = 'black'))+
@@ -204,14 +211,17 @@ spplot(fieldsutmpoly, 'field_type', col.regions = col, scales = list(draw = TRUE
  layer(sp.points(ThePlotList[[7]], col = 'black'))
 dev.off()
 
-# Figure 1 (logger S9):
+# Figure 1 (logger S9a):
 inch = 2.54
 par(mar = (c(1, 1, 1, 2) + 0.1)/2, oma = rep(0.1, 4))
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.pdf', height = 8/inch, width = 10/inch)
-postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.eps', height = 8/inch, width = 10/inch)
-spplot(fieldsutmpoly, 'field_type', col.regions = col, scales = list(draw = FALSE)) +
-  latticeExtra::layer(sp.points(ThePlotList[[6]], col = 'black', pch = 1, cex = 0.5))  + 
-  latticeExtra::layer(sp.points(farmcenter, pch = 23, col = 'black', fill = 'lightgrey', cex = 1))
+postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.eps', height = 8/inch, width = 10/inch)
+set_Polypath(FALSE)  # Appears to be needed to make lwd work...
+spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey',
+       lwd = 0.2) +
+# spplot(fields, 'Crop2016Late', scales = list(draw = FALSE)) +
+  latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.5))  + 
+  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1))
 dev.off()
 # Scale bar needs to be added by hand.
 
