@@ -191,25 +191,7 @@ col[8] = 'khaki4'
 pfields@data$Crop2015 = as.factor(pfields@data$Crop2015)
 pfields@data$Crop2016Early = as.factor(pfields@data$Crop2016Early)
 pfields@data$Crop2016Late = as.factor(pfields@data$Crop2016Late)
-# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1.pdf')
-spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = TRUE)) +
- layer(sp.points(ThePlotList[[1]], col = 'black'))+
- layer(sp.points(ThePlotList[[2]], col = 'black'))+
- layer(sp.points(ThePlotList[[3]], col = 'black'))+
- layer(sp.points(ThePlotList[[4]], col = 'black'))+
- layer(sp.points(ThePlotList[[5]], col = 'black'))+
- layer(sp.points(ThePlotList[[6]], col = 'black'))+
- layer(sp.points(ThePlotList[[7]], col = 'black'))
-spplot(fieldsutmpoly, 'field_type', col.regions = col, scales = list(draw = TRUE),
- xlim = c(481750, 483500), ylim = c(6154000,6155500)) +
- layer(sp.points(ThePlotList[[1]], col = 'black'))+
- layer(sp.points(ThePlotList[[2]], col = 'black'))+
- layer(sp.points(ThePlotList[[3]], col = 'black'))+
- layer(sp.points(ThePlotList[[4]], col = 'black'))+
- layer(sp.points(ThePlotList[[5]], col = 'black'))+
- layer(sp.points(ThePlotList[[6]], col = 'black'))+
- layer(sp.points(ThePlotList[[7]], col = 'black'))
-dev.off()
+
 
 # Figure 1 (logger S9a):
 scale1 <- list("SpatialPolygonsRescale", layout.scale.bar(height = 0.1), 
@@ -221,51 +203,73 @@ inch = 2.54
 par(mar = (c(1, 1, 1, 2) + 0.1)/2, oma = rep(0.1, 4))
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.pdf', height = 8/inch, width = 10/inch)
 postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.eps', height = 8/inch, width = 10/inch)
+pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.pdf', height = 8/inch, width = 10/inch)
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
+logger = unique(ThePlotList[[16]]$LoggerID)
 spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-       sp.layout=list(scale1, text1, text2)) +
-  latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.5))  + 
+       sp.layout=list(scale1, text1, text2), main = logger) +
+  latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.3))  + 
   latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) 
 dev.off()
 # Scale bar needs to be added by hand.
 # logger
 postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.eps', height = 8/inch, width = 10/inch)
+pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.pdf', height = 8/inch, width = 10/inch)
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
+logger = unique(ThePlotList[[13]]$LoggerID)
 spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-       sp.layout=list(scale1, text1, text2)) +
+       sp.layout=list(scale1, text1, text2), main = logger) +
   latticeExtra::layer(sp.points(ThePlotList[[13]], col = 'black', pch = 1, cex = 0.5))  + 
   latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1))
+dev.off()
+
+#---- The supplement figures:
+early = c('S15', 'S14', 'S13', 'S17', 'S4a', 'S11', 'S9a', 'S12', 'S1')
+early = paste(early, '2016', sep = '-')
+late = c('S4b', 'S9b')
+late = paste(late, '2016', sep = '-')
+pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/SupplementFigures2017.pdf', paper = 'a4')
+set_Polypath(FALSE)
+for(i in seq_along(ThePlotList)){
+  logger = unique(ThePlotList[[i]]$LoggerID)
+  if("2015" %in% logger)
+  {print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
+          sp.layout=list(scale1, text1, text2), main = logger) +
+      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
+      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))}
+  if(logger %in% early)
+  {print(spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
+          sp.layout=list(scale1, text1, text2), main = logger) +
+      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
+      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))
+  }
+  if(logger %in% late) {
+    print(spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
+           sp.layout=list(scale1, text1, text2), main = logger) +
+      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
+      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))
+  }
+}
 dev.off()
 
 
 
 
-# Figure S1:  WIP...
-# library(ggplot2)
-# library(ggmap)
-# map = fortify(fieldsutmpoly)
-# fieldsutmpoly@data$ID = 0:(nrow(fieldsutmpoly@data)-1)
-# plotdata = merge(map, fieldsutmpoly@data, by.x = 'id', by.y = 'ID', all.x = TRUE)
 
-# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/FigS1.pdf', height = 10, width = 5*5)
-# ggplot() + geom_polygon(data=plotdata, aes(x=long, y=lat, group=group, fill = field_type)) + 
-#  scale_fill_brewer(palette = "Set2") + coord_fixed() + coord_equal() + 
-# geom_point(data = starlings[LoggerID != 'S9' & Response == 1,], aes(x = Longitude, y = Latitude)) + 
-# theme_bw() + facet_wrap(~LoggerID, ncol = 3) + coord_cartesian(xlim = c(481750, 483500), ylim = c(6154000,6154000+1750))
-# dev.off()
 
-# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b.pdf', height = 8/inch, width = 10/inch)
-# ggplot() + geom_polygon(data=plotdata, aes(x=long, y=lat, group=group, fill = field_type)) + 
-#  scale_fill_brewer(palette = "Set2") + coord_fixed() + coord_equal() + 
-# geom_point(data = starlings[LoggerID == 'S9' & Response == 1,], aes(x = Longitude, y = Latitude)) + 
-# theme_bw()
-# dev.off()
-# coord_cartesian(xlim = c(481750, 483500), ylim = c(6154000,6154000+1750))
-# Analyse
-# We need to figure out how exactly we want to implement the models:
-# The model below are not converging at the moment, but that might be
-# due to the wrong model specification.
-# Set the types:
-# starlings[, LoggerID:=as.factor(LoggerID)]
-# M1 = glmer(Response ~ FieldType*log10(Dist) + (1 | LoggerID), control=glmerControl(optimizer="bobyqa"), data = starlings, nAGQ = 10, family = binomial(link = logit))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
