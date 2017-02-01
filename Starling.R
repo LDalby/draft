@@ -178,7 +178,9 @@ for (i in seq_along(loggers)) {
 
 
 
-
+buffer = 1200
+xlim = c(482806.60016627 - buffer, 482806.60016627 +buffer)
+ylim = c(6154932.799999 - buffer, 6154932.799999 + buffer)
 
 # Attempt at Fig1
 # S9a-2016 Early period
@@ -194,11 +196,6 @@ pfields@data$Crop2016Late = as.factor(pfields@data$Crop2016Late)
 
 
 # Figure 1 (logger S9a):
-scale1 <- list("SpatialPolygonsRescale", layout.scale.bar(height = 0.1), 
-               offset = c(484000,6153150), scale = 500, fill=c("transparent","black"), which = 1)
-text1 = list("sp.text", c(484000,6153300), "0", which = 1)
-text2 = list("sp.text", c(484500,6153300), "500 m", which = 1)
-
 inch = 2.54
 par(mar = (c(1, 1, 1, 2) + 0.1)/2, oma = rep(0.1, 4))
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.pdf', height = 8/inch, width = 10/inch)
@@ -207,11 +204,15 @@ pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.pdf', height = 8/inch, w
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
 logger = unique(ThePlotList[[16]]$LoggerID)
 spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-       sp.layout=list(scale1, text1, text2), main = logger) +
+        main = logger, xlim = xlim, ylim = ylim) +
   latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.3))  + 
-  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) 
+  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
+  latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
+                                             offset = c(483300,6153850), scale = 500, fill=c("white","black"))) +
+  latticeExtra::layer(sp.text(c(483800,6154000), "500 m")) + 
+  latticeExtra::layer(sp.text(c(483300,6154000), "0 m"))
 dev.off()
-# Scale bar needs to be added by hand.
+
 # logger
 postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.eps', height = 8/inch, width = 10/inch)
 pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.pdf', height = 8/inch, width = 10/inch)
