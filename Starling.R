@@ -182,7 +182,7 @@ buffer = 1200
 xlim = c(482806.60016627 - buffer, 482806.60016627 +buffer)
 ylim = c(6154932.799999 - buffer, 6154932.799999 + buffer)
 
-# Attempt at Fig1
+# Fig 1
 # S9a-2016 Early period
 col = colorschemes$Categorical.12[1:8]  # Important to get the correct number of levels!
 col[2] = 'black'
@@ -197,31 +197,38 @@ pfields@data$Crop2016Late = as.factor(pfields@data$Crop2016Late)
 
 # Figure 1 (logger S9a):
 inch = 2.54
+height = 11/inch
+width = 16/inch
 par(mar = (c(1, 1, 1, 2) + 0.1)/2, oma = rep(0.1, 4))
 # pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a.pdf', height = 8/inch, width = 10/inch)
-postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.eps', height = 8/inch, width = 10/inch)
-pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.pdf', height = 8/inch, width = 10/inch)
+postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.eps', height = height, width = width)
+# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1a2017.pdf', height = 8/inch, width = 10/inch)
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
 logger = unique(ThePlotList[[16]]$LoggerID)
 spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
         main = logger, xlim = xlim, ylim = ylim) +
-  latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.3))  + 
+  latticeExtra::layer(sp.points(ThePlotList[[16]], col = 'black', pch = 1, cex = 0.5, lwd = 0.5))  + 
   latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
   latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
-                                             offset = c(483300,6153850), scale = 500, fill=c("white","black"))) +
-  latticeExtra::layer(sp.text(c(483800,6154000), "500 m")) + 
-  latticeExtra::layer(sp.text(c(483300,6154000), "0 m"))
+                                             offset = c(483300,6153800), scale = 500, fill=c("white","black"))) +
+  latticeExtra::layer(sp.text(c(483800,6153950), txt = "500 m", cex = 0.5)) + 
+  latticeExtra::layer(sp.text(c(483300,6153950), txt = "0 m", cex = 0.5)) + 
+  latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3))
 dev.off()
 
-# logger
-postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.eps', height = 8/inch, width = 10/inch)
-pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.pdf', height = 8/inch, width = 10/inch)
+postscript(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.eps', height = height, width = width)
+# pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/Fig1b2017.pdf', height = 8/inch, width = 10/inch)
 set_Polypath(FALSE)  # Appears to be needed to make lwd work...
 logger = unique(ThePlotList[[13]]$LoggerID)
-spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-       sp.layout=list(scale1, text1, text2), main = logger) +
-  latticeExtra::layer(sp.points(ThePlotList[[13]], col = 'black', pch = 1, cex = 0.5))  + 
-  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1))
+spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
+       main = logger, xlim = xlim, ylim = ylim) +
+  latticeExtra::layer(sp.points(ThePlotList[[13]], col = 'black', pch = 1, cex = 0.5, lwd = 0.5))  + 
+  latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
+  latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
+                                             offset = c(483300,6153800), scale = 500, fill=c("white","black"))) +
+  latticeExtra::layer(sp.text(c(483800,6153950), txt = "500 m", cex = 0.5)) + 
+  latticeExtra::layer(sp.text(c(483300,6153950), txt = "0 m", cex = 0.5)) + 
+  latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3))
 dev.off()
 
 #---- The supplement figures:
@@ -234,21 +241,36 @@ set_Polypath(FALSE)
 for(i in seq_along(ThePlotList)){
   logger = unique(ThePlotList[[i]]$LoggerID)
   if("2015" %in% logger)
-  {print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-          sp.layout=list(scale1, text1, text2), main = logger) +
-      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
-      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))}
+  {print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
+                main = logger, xlim = xlim, ylim = ylim) +
+           latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5, lwd = 0.7))  + 
+           latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
+           latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
+                                                      offset = c(483300,6153800), scale = 500, fill=c("white","black"))) +
+           latticeExtra::layer(sp.text(c(483800,6153950), txt = "500 m", cex = 0.7)) + 
+           latticeExtra::layer(sp.text(c(483300,6153950), txt = "0 m", cex = 0.7)) + 
+           latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3)))}
   if(logger %in% early)
-  {print(spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-          sp.layout=list(scale1, text1, text2), main = logger) +
-      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
-      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))
+  {print(spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
+                main = logger, xlim = xlim, ylim = ylim) +
+           latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5, lwd = 0.7))  + 
+           latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
+           latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
+                                                      offset = c(483300,6153800), scale = 500, fill=c("white","black"))) +
+           latticeExtra::layer(sp.text(c(483800,6153950), txt = "500 m", cex = 0.7)) + 
+           latticeExtra::layer(sp.text(c(483300,6153950), txt = "0 m", cex = 0.7)) + 
+           latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3)))
   }
   if(logger %in% late) {
-    print(spplot(pfields, 'Crop2016Early', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.2,
-           sp.layout=list(scale1, text1, text2), main = logger) +
-      latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5))  + 
-      latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)))
+    print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
+                 main = logger, xlim = xlim, ylim = ylim) +
+            latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5, lwd = 0.7))  + 
+            latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
+            latticeExtra::layer(SpatialPolygonsRescale(layout.scale.bar(height = 0.1), 
+                                                       offset = c(483300,6153800), scale = 500, fill=c("white","black"))) +
+            latticeExtra::layer(sp.text(c(483800,6153950), txt = "500 m", cex = 0.7)) + 
+            latticeExtra::layer(sp.text(c(483300,6153950), txt = "0 m", cex = 0.7)) + 
+            latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3)))
   }
 }
 dev.off()
