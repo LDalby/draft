@@ -240,7 +240,7 @@ pdf(file = 'C:/Users/lada/Dropbox/StarlingGPS/SupplementFigures2017.pdf', paper 
 set_Polypath(FALSE)
 for(i in seq_along(ThePlotList)){
   logger = unique(ThePlotList[[i]]$LoggerID)
-  if("2015" %in% logger)
+  if(length(grep(pattern = "2015", logger)) > 0)
   {print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
                 main = logger, xlim = xlim, ylim = ylim) +
            latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5, lwd = 0.7))  + 
@@ -262,7 +262,7 @@ for(i in seq_along(ThePlotList)){
            latticeExtra::layer(sp.polygons(gBuffer(ringingsite, width = 1000, quadsegs = 20), lwd = 0.3)))
   }
   if(logger %in% late) {
-    print(spplot(pfields, 'Crop2015', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
+    print(spplot(pfields, 'Crop2016Late', col.regions = col, scales = list(draw = FALSE), col = 'lightgrey', lwd = 0.4,
                  main = logger, xlim = xlim, ylim = ylim) +
             latticeExtra::layer(sp.points(ThePlotList[[i]], col = 'black', pch = 1, cex = 0.5, lwd = 0.7))  + 
             latticeExtra::layer(sp.points(ringingsite, pch = 23, col = 'black', fill = 'dodgerblue2', cex = 1)) +
@@ -274,8 +274,6 @@ for(i in seq_along(ThePlotList)){
   }
 }
 dev.off()
-
-
 
 
 
