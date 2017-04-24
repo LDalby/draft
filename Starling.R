@@ -276,9 +276,35 @@ for(i in seq_along(ThePlotList)){
 dev.off()
 
 
+# April 24 2017 - calculate areas in response to reviewers:
+landcover = st_read('o:/ST_Lada/Projekter/Starling/BaseMapHjortkaer.shp')
+circ = st_as_sf(gBuffer(ringingsite, width = 1000, quadsegs = 20))
+st_crs(landcover)
+st_crs(circ)
+int = st_intersection(landcover, circ)
+int$Area = st_area(int$geoms)
 
+plot(landcover$geometry, col = 'green')  
+plot(circ$geometry, add = TRUE)
+plot(int$geoms, col = 'red', add = TRUE)
 
+st_area(circ$geometry)  # Get the area of the circle
+intdt = as.data.table(int)
+intdt[, .(AreaByType = sum(Area)), by = FEAT_TYPE]  # Get the area by type
+intdt[, .(AreaByType = sum(Area)), by = FEAT_TYPE][, sum(AreaByType)]  # Check that its sums to <= area of circle
 
+# FEAT_TYPE      AreaByType
+# 1:        P3  261133.083 m^2
+# 2:  Building   20190.885 m^2
+# 3:         0 2367057.910 m^2
+# 4:    Garden   97786.246 m^2
+# 5:     Trees   37560.432 m^2
+# 6:      Fold   11219.288 m^2
+# 7:    Meadow    5159.562 m^2
+# 8:    Forest  156542.493 m^2
+# 9:      Lake   14343.542 m^2
+
+(20190.885 + 97786.246 + 37560.432 + 156542.493 + 14343.542)/st_area(circ$geometry)
 
 
 
