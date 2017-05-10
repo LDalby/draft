@@ -11,9 +11,17 @@ ScipenDefault = getOption('scipen')  # In case it should be turned back again.
 options(scipen = 99)  # To avoid scientific notation in the resulting file
 
 muni = as.data.table(read_excel('C:/Users/lada/Desktop/NatKvalIndex2.xlsx'))
-munisID = unique(muni[,KommuneID])
+
 # Fix multibioscore error in data:
 muni = unique(muni[, Areal:=sum(Areal), by = c('KommuneID', 'Type', 'Bioscore', 'Navn')])
+
+foo = data.table(KommuneID = -1,
+                 Navn = 'bar',
+                 TypeCode = c(1:3, 8),
+                 Type = c('Skov', 'Mark', 'HedeOverdrev', 'Andet'),
+                 Bioscore = c(1, 6, 8, 0), Areal = c(500, 100, 50, 0))
+muni = rbind(muni, foo)
+munisID = unique(muni[,KommuneID])
 # Calc the proportions
 muni[, Areal:=Areal/10000]
 muni[, ArealTotal:=sum(Areal), by = 'KommuneID']
@@ -44,6 +52,11 @@ natind = unique(final[, .(KommuneID, Type, xmax, xmin, AvgScore)])
 natind[,x:=xmax-xmin, by = KommuneID]
 natind[,TypeAreal:=x*AvgScore, by = KommuneID]
 natind[,NatKapInd:=round((sum(TypeAreal)/(log(13)*100))*100), by = KommuneID]
+
+# Test against published values:
+dn = as.data.table(read_excel('C:/Users/lada/Documents/Metodebeskrivelse-og-data/Bilag II - NKI vaerdier for hver enkelt kommune.xlsx'))
+combined = merge(unique(natind[, .(KommuneID, NatKapInd)]), dn, by.x = "KommuneID", by.y = "KommID")
+
 # Opsummér Bioscore, areal osv.
 tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin]
 tmp = final[,.(KommuneID, Navn, Type, AvgScore, BioScoreRaw, xmin, xmax)][, Areal:=xmax-xmin, by = c('KommuneID', 'Type')]
