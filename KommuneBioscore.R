@@ -11,16 +11,17 @@ ScipenDefault = getOption('scipen')  # In case it should be turned back again.
 options(scipen = 99)  # To avoid scientific notation in the resulting file
 
 muni = as.data.table(read_excel('C:/Users/lada/Desktop/NatKvalIndex2.xlsx'))
+# muni = as.data.table(read_excel('O:/ST_Lada/Projekter/NKI/FlemmingTest/NatKvalIndex4.xlsx'))
 
 # Fix multibioscore error in data:
 muni = unique(muni[, Areal:=sum(Areal), by = c('KommuneID', 'Type', 'Bioscore', 'Navn')])
 
-foo = data.table(KommuneID = -1,
-                 Navn = 'bar',
-                 TypeCode = c(1:3, 8),
-                 Type = c('Skov', 'Mark', 'HedeOverdrev', 'Andet'),
-                 Bioscore = c(1, 6, 8, 0), Areal = c(500, 100, 50, 0))
-muni = rbind(muni, foo)
+# foo = data.table(KommuneID = -1,
+#                  Navn = 'bar',
+#                  TypeCode = c(1:3, 8),
+#                  Type = c('Skov', 'Mark', 'HedeOverdrev', 'Andet'),
+#                  Bioscore = c(1, 6, 8, 0), Areal = c(500, 100, 50, 0))
+# muni = rbind(muni, foo)
 munisID = unique(muni[,KommuneID])
 # Calc the proportions
 muni[, Areal:=Areal/10000]
@@ -35,7 +36,7 @@ typen = unique(muni[,.(KommuneID, Type, TypeAndel)])
 typen[,xmax:=cumsum(TypeAndel), by = 'KommuneID']
 typen[,xmin:=xmax - TypeAndel, by = 'KommuneID']
 # Merge them back together:
-final = merge(muni, typen, by = c('KommuneID', 'Type'))
+final = merge(muni, typen, by = c('KommuneID', 'Type'))  # okay hertil
 final[,AvgScore:=log(weighted.mean(Bioscore, Areal)+1), by = c('KommuneID', 'Type')]
 final[, BioScoreRaw:=weighted.mean(Bioscore, Areal), by = c('KommuneID', 'Type')]
 final[TypeCode == 6, AvgScore:=0.77]
@@ -45,7 +46,12 @@ andet = unique(andet[, .(KommuneID, Type, AvgScore, TypeAndel.x)])
 andet = unique(andet[Type != 'Andet', AvgScore:=weighted.mean(AvgScore, TypeAndel.x), by = c('KommuneID')][Type != 'Andet',.(KommuneID, AvgScore)])
 # Put the new Andet scores back into final:
 final[Type == 'Andet', AvgScore:=andet[,AvgScore]]
+# andet = unique(andet[Type != 'h) andet', AvgScore:=weighted.mean(AvgScore, TypeAndel.x), by = c('KommuneID')][Type != 'h) andet',.(KommuneID, AvgScore)])
+# Put the new Andet scores back into final:
+# final[Type == 'h) andet', AvgScore:=andet[,AvgScore]]
 final[AvgScore > log(13), AvgScore:=log(13), by = c('KommuneID', 'Type')]
+
+# final_ld = as.tbl(copy(final))
 
 # Beregn naturkapital index:
 natind = unique(final[, .(KommuneID, Type, xmax, xmin, AvgScore)])
@@ -77,22 +83,25 @@ cols = c("Skov" = dark2[5],
  		"Mark" = set3[6],
   		"HedeOverdrev" = past2[4],
    		"EngMose" = past1[2],
-		"SÃ¸" = set1[2],
-	 	"ByerGrÃ¸nt" = set2[5],
+		"Sø" = set1[2],
+	 	"ByerGrønt" = set2[5],
 	  	"ByerHuseVeje" = set1[9],
 	   	"Andet" = brewer.pal(9, 'Greys')[2])  #dark2[8]
+
+final[, Type:=factor(Type, levels = c("Skov", "Mark", "HedeOverdrev", "EngMose", "Sø", "ByerGrønt", "ByerHuseVeje", "Andet"))]
+
 # Plot:
 path = #sÃ¦t sti...
 plotnavn = paste0(komnavn, Sys.Date(), '.pdf')
 filnavn = file.path(path, plotnavn)
-pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex18_LD.pdf')
+pdf(file = 'C:/Users/lada/Desktop/NatKvalIndex17052017_LD.pdf')
 for (i in seq_along(munisID)) {
 	#pdf(filnavn)
 	komnavn = unique(final[KommuneID == munisID[i],Navn])
 	NatKapInd = unique(natind[KommuneID == munisID[i], NatKapInd])
 	komnavn = paste(komnavn, round(NatKapInd), sep = ' - ')
 	p = ggplot(final[KommuneID == munisID[i],], aes(ymin = 0, ymax = AvgScore, xmin = xmin, xmax = xmax,
-		fill = factor(Type))) + ylab('NaturvÃ¦rdi') + xlab('Arealandel (%)') + ggtitle(komnavn)
+		fill = factor(Type))) + ylab('Naturværdi') + xlab('Arealandel (%)') + ggtitle(komnavn)
 	p = p + geom_rect() + theme_bw() + 
 	scale_y_continuous(breaks = seq(0, log(13), length = 6)[1:5], limits = c(0,log(13)), labels = c('Ingen', 'Lille', 'Lokal', 'Regional', 'National')) + 
 	theme(panel.grid.minor = element_blank()) + scale_fill_manual(values = cols, guide = guide_legend(title = "Type")) + 
